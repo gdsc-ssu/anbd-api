@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: anbd-api
+  servlet:
+    multipart:
+      maxFileSize: 10MB # 파일 하나의 최대 크기
+      maxRequestSize: 30MB  # 한 번에 최대 업로드 가능 용량
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USERNAME} # 데이터베이스 커넥션 이름
+    password: ${DB_PASSWORD} # 데이터베이스 커넥션 비밀번호
+    url: ${DB_URL}
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: 8080
+
+#kakao:
+#  client-id: ${KAKAO_CLIENT_ID}
+#  redirect-uri: ${KAKAO_REDIRECT_URI}
+#
+#jwt:
+#  secret: ${JWT_SECRET}
+#  expiration:
+#    access: ${JWT_EXPIRATION_ACCESS}
+#    refresh: ${JWT_EXPIRATION_REFRESH}
