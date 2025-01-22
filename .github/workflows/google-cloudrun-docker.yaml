@@ -75,7 +75,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew :tle:tle-application:bootJar
+        run: ./gradlew :anbd-api:bootJar
 
       - name: Decode Dockerfile from secret and save it
         run: |
@@ -96,7 +96,7 @@ jobs:
       - name: 'Build and Push Container'
         run: |-
           gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://asia-northeast3-docker.pkg.dev
-          DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/tle-api:${{ github.sha }}"
+          DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/anbd-api:${{ github.sha }}"
           docker build --tag "${DOCKER_TAG}" .
           docker push "${DOCKER_TAG}"
       - name: 'Deploy to Cloud Run'
