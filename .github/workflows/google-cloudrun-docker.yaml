@@ -75,7 +75,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew :anbd-api:bootJar
+        run: ./gradlew :bootJar
 
       - name: Decode Dockerfile from secret and save it
         run: |
