@@ -5,22 +5,57 @@ spring:
     multipart:
       maxFileSize: 10MB # 파일 하나의 최대 크기
       maxRequestSize: 30MB  # 한 번에 최대 업로드 가능 용량
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_SECRET}
+            redirect-uri: ${BASE_URL}/login/oauth2/code/google
+            scope:
+              - profile
+              - email
+#          apple: # 추가된 Apple 소셜 로그인 설정
+#            client-id: { APPLE_CLIENT_ID }         # 애플에서 발급받은 Client ID
+#            client-secret: { APPLE_CLIENT_SECRET } # 애플에서 생성한 JWT 형식의 Client Secret
+#            redirect-uri: { APPLE_REDIRECT_URI }    # 애플 로그인 후 돌아올 URI
+#            authorization-grant-type: authorization_code
+#            scope:
+#              - name
+#              - email
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
+#          apple: # 추가된 Apple 소셜 로그인 프로바이더 설정
+#            authorization-uri: https://appleid.apple.com/auth/authorize
+#            token-uri: https://appleid.apple.com/auth/token
+#            jwk-set-uri: https://appleid.apple.com/auth/keys
+
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    username: ${DB_USERNAME} # 데이터베이스 커넥션 이름
-    password: ${DB_PASSWORD} # 데이터베이스 커넥션 비밀번호
-    url: ${DB_URL}
+    username: ${DB_NAME}
+    password: ${DB_PASSWORD}
+    url: ${DB_URI}
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
         use_sql_comments: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-expiration-in-ms: ${ACCESS_EXPIRATION_IN}
+  refresh-expiration-in-ms: ${REFRESH_EXPIRATION_IN}
 
 server:
   port: 8080
