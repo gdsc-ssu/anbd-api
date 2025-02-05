@@ -47,9 +47,11 @@ class User(
     @Column(name = "refresh_token", length = 512)
     var refreshToken: String? = null,
 
+    @Column(name = "is_profile_completed")
+    var isProfileCompleted: Boolean = false,
+
     @Column(name = "deleted_at")
     var deletedAt: LocalDateTime? = null
-
 ) : BaseTimeEntity()
 {
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)

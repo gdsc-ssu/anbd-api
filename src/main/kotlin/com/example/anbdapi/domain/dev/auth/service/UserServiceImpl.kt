@@ -98,6 +98,8 @@ class UserServiceImpl(
         request.profileImage?.let { user.profileImage = it }
         request.shareCategory?.let { user.shareCategory = it }
 
+        user.isProfileCompleted = true
+
         return userRepository.save(user)
     }
 

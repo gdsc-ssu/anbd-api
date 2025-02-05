@@ -35,8 +35,8 @@ class OAuth2AuthenticationSuccessHandler(
         userService.updateRefreshToken(email, refreshToken)
 
         val user = userService.findByEmail(email) ?: throw RuntimeException("User not found")
-        // 가입 후 최초 로그인 시 createdDate와 modifiedDate가 같다면 프로필 미완료 상태로 간주
-        val profileCompleteFlag = if (user.createdDate == user.modifiedDate) 1 else 0
+        // 가입 후 최초 로그인 시 프로필 미완료 상태로 간주
+        val profileCompleteFlag = if (user.isProfileCompleted) 1 else 0
         val loginResponse = LoginResponse(accessToken, refreshToken, profileCompleteFlag)
 
         response.contentType = "application/json"
