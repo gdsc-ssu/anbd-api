@@ -1,4 +1,4 @@
-package com.example.anbdapi.configuration
+package com.example.anbdapi.support.configuration
 
 import com.example.anbdapi.domain.dev.auth.global.JwtAuthenticationFilter
 import com.example.anbdapi.domain.dev.auth.global.OAuth2AuthenticationSuccessHandler
