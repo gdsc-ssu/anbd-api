@@ -3,11 +3,12 @@ package com.example.anbdapi.domain.auth.controller
 import com.example.anbdapi.domain.auth.dto.request.RefreshRequest
 import com.example.anbdapi.domain.auth.dto.response.TokenResponse
 import com.example.anbdapi.domain.auth.service.AuthService
+import com.example.anbdapi.support.logging.TraceIdResolver
+import com.example.anbdapi.support.response.AnbdApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v1/auth")
 @Tag(name = "Auth API", description = "인증 관련 API")
 class AuthControllerImpl(
+    private val traceIdResolver: TraceIdResolver,
     private val authService: AuthService
 ) : AuthController {
 
@@ -32,7 +34,10 @@ class AuthControllerImpl(
         ]
     )
     @PostMapping("/refresh")
-    override fun refreshAccessToken(@RequestBody request: RefreshRequest): ResponseEntity<TokenResponse> {
-        return ResponseEntity.ok(authService.refreshAccessToken(request))
+    override fun refreshAccessToken(@RequestBody request: RefreshRequest): AnbdApiResponse<TokenResponse> {
+        return AnbdApiResponse.success(
+            traceId = traceIdResolver.getTraceId(),
+            body = authService.refreshAccessToken(request)
+        )
     }
 }

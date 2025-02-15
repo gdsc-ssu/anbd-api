@@ -3,11 +3,12 @@ package com.example.anbdapi.domain.auth.controller
 import com.example.anbdapi.domain.auth.dto.request.LogoutRequest
 import com.example.anbdapi.domain.auth.dto.request.ProfileUpdateRequest
 import com.example.anbdapi.domain.auth.service.UserService
+import com.example.anbdapi.support.logging.TraceIdResolver
+import com.example.anbdapi.support.response.AnbdApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.web.bind.annotation.*
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/v1/users")
 @Tag(name = "User API", description = "사용자 관련 API (로그아웃, 프로필 업데이트, 회원 탈퇴)")
 class UserControllerImpl(
+    private val traceIdResolver: TraceIdResolver,
     private val userService: UserService
 ) : UserController {
 
@@ -30,9 +32,12 @@ class UserControllerImpl(
         ]
     )
     @PostMapping("/logout")
-    override fun logout(@RequestBody request: LogoutRequest): ResponseEntity<String> {
+    override fun logout(@RequestBody request: LogoutRequest): AnbdApiResponse<String> {
         val result = userService.logoutUser(request.email)
-        return ResponseEntity.ok(result)
+        return AnbdApiResponse.success(
+            traceId = traceIdResolver.getTraceId(),
+            body = result
+        )
     }
 
     @Operation(
@@ -49,12 +54,15 @@ class UserControllerImpl(
     override fun updateProfile(
         @AuthenticationPrincipal oAuth2User: OAuth2User,
         @RequestBody request: ProfileUpdateRequest
-    ): ResponseEntity<String> {
+    ): AnbdApiResponse<String> {
         val email = oAuth2User.attributes["email"] as? String
             ?: throw IllegalArgumentException("Email not found in authentication data")
 
         userService.updateUserProfile(email, request)
-        return ResponseEntity.ok("Profile updated successfully")
+        return AnbdApiResponse.success(
+            traceId = traceIdResolver.getTraceId(),
+            body = "Profile updated successfully"
+        )
     }
 
     @Operation(
@@ -68,11 +76,14 @@ class UserControllerImpl(
         ]
     )
     @DeleteMapping("/withdraw")
-    override fun withdraw(@AuthenticationPrincipal oAuth2User: OAuth2User): ResponseEntity<String> {
+    override fun withdraw(@AuthenticationPrincipal oAuth2User: OAuth2User): AnbdApiResponse<String> {
         val email = oAuth2User.attributes["email"] as? String
             ?: throw IllegalArgumentException("Email not found in authentication data")
 
         val result = userService.withdrawUser(email)
-        return ResponseEntity.ok(result)
+        return AnbdApiResponse.success(
+            traceId = traceIdResolver.getTraceId(),
+            body = result
+        )
     }
 }
