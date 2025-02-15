@@ -1,12 +1,19 @@
 package com.example.anbdapi.domain.auth.service
 
+import com.example.anbdapi.domain.auth.dto.request.ProfileUpdateRequest
+import com.example.anbdapi.domain.auth.entity.Gender
+import com.example.anbdapi.domain.auth.entity.Provider
+import com.example.anbdapi.domain.auth.entity.User
+import com.example.anbdapi.domain.auth.entity.UserSocialAccount
+import com.example.anbdapi.domain.auth.repository.UserRepository
+import com.example.anbdapi.domain.auth.repository.UserSocialAccountRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
 @Service
 class UserServiceImpl(
-    private val userRepository: com.example.anbdapi.domain.auth.repository.UserRepository,
-    private val userSocialAccountRepository: com.example.anbdapi.domain.auth.repository.UserSocialAccountRepository
+    private val userRepository: UserRepository,
+    private val userSocialAccountRepository: UserSocialAccountRepository
 ) : UserService {
 
     /**
@@ -22,8 +29,8 @@ class UserServiceImpl(
         email: String,
         name: String,
         pictureUrl: String
-    ): com.example.anbdapi.domain.auth.entity.User {
-        val providerEnum = com.example.anbdapi.domain.auth.entity.Provider.valueOf(registrationId.uppercase())
+    ): User {
+        val providerEnum = Provider.valueOf(registrationId.uppercase())
         val existingSocialAccount = userSocialAccountRepository.findByProviderAndProviderId(providerEnum, providerId)
         if (existingSocialAccount != null) {
             return existingSocialAccount.user
@@ -31,7 +38,7 @@ class UserServiceImpl(
 
         val existingUser = userRepository.findByEmail(email)
         if (existingUser != null) {
-            val newSocialAccount = com.example.anbdapi.domain.auth.entity.UserSocialAccount(
+            val newSocialAccount = UserSocialAccount(
                 user = existingUser,
                 provider = providerEnum,
                 providerId = providerId,
@@ -42,11 +49,11 @@ class UserServiceImpl(
         }
 
         // 신규 유저 생성 (필수값에 기본값 사용)
-        val newUser = com.example.anbdapi.domain.auth.entity.User(
+        val newUser = User(
             nickname = name,
             email = email,
             profileImage = pictureUrl,
-            gender = com.example.anbdapi.domain.auth.entity.Gender.OTHER,
+            gender = Gender.OTHER,
             birthDate = LocalDate.of(2000, 1, 1),
             shareCategory = null,
             reliability = 0,
@@ -55,7 +62,7 @@ class UserServiceImpl(
         )
         userRepository.save(newUser)
 
-        val newSocialAccount = com.example.anbdapi.domain.auth.entity.UserSocialAccount(
+        val newSocialAccount = UserSocialAccount(
             user = newUser,
             provider = providerEnum,
             providerId = providerId,
@@ -66,11 +73,11 @@ class UserServiceImpl(
         return newUser
     }
 
-    override fun findByEmail(email: String): com.example.anbdapi.domain.auth.entity.User? {
+    override fun findByEmail(email: String): User? {
         return userRepository.findByEmail(email)
     }
 
-    override fun save(user: com.example.anbdapi.domain.auth.entity.User) {
+    override fun save(user: User) {
         userRepository.save(user)
     }
 
@@ -81,7 +88,7 @@ class UserServiceImpl(
         return "Logout success"
     }
 
-    override fun updateUserProfile(email: String, request: com.example.anbdapi.domain.auth.dto.request.ProfileUpdateRequest): com.example.anbdapi.domain.auth.entity.User {
+    override fun updateUserProfile(email: String, request: ProfileUpdateRequest): User {
         val user = userRepository.findByEmail(email) ?: throw RuntimeException("User not found")
         user.gender = request.gender
         user.birthDate = request.birthDate

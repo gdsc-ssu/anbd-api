@@ -1,5 +1,7 @@
 package com.example.anbdapi.domain.auth.controller
 
+import com.example.anbdapi.domain.auth.dto.request.LogoutRequest
+import com.example.anbdapi.domain.auth.dto.request.ProfileUpdateRequest
 import com.example.anbdapi.domain.auth.service.UserService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -28,7 +30,7 @@ class UserControllerImpl(
         ]
     )
     @PostMapping("/logout")
-    override fun logout(@RequestBody request: com.example.anbdapi.domain.auth.dto.request.LogoutRequest): ResponseEntity<String> {
+    override fun logout(@RequestBody request: LogoutRequest): ResponseEntity<String> {
         val result = userService.logoutUser(request.email)
         return ResponseEntity.ok(result)
     }
@@ -46,7 +48,7 @@ class UserControllerImpl(
     @PutMapping("/profile/update")
     override fun updateProfile(
         @AuthenticationPrincipal oAuth2User: OAuth2User,
-        @RequestBody request: com.example.anbdapi.domain.auth.dto.request.ProfileUpdateRequest
+        @RequestBody request: ProfileUpdateRequest
     ): ResponseEntity<String> {
         val email = oAuth2User.attributes["email"] as? String
             ?: throw IllegalArgumentException("Email not found in authentication data")

@@ -1,5 +1,8 @@
 package com.example.anbdapi.domain.auth.service
 
+import com.example.anbdapi.domain.auth.dto.request.ProfileUpdateRequest
+import com.example.anbdapi.domain.auth.entity.User
+
 
 interface UserService {
     fun findOrCreateUser(
@@ -8,12 +11,12 @@ interface UserService {
         email: String,
         name: String,
         pictureUrl: String
-    ): com.example.anbdapi.domain.auth.entity.User
+    ): User
 
-    fun findByEmail(email: String): com.example.anbdapi.domain.auth.entity.User?
-    fun save(user: com.example.anbdapi.domain.auth.entity.User)
+    fun findByEmail(email: String): User?
+    fun save(user: User)
     fun logoutUser(email: String): String
-    fun updateUserProfile(email: String, request: com.example.anbdapi.domain.auth.dto.request.ProfileUpdateRequest): com.example.anbdapi.domain.auth.entity.User
+    fun updateUserProfile(email: String, request: ProfileUpdateRequest): User
     fun updateRefreshToken(email: String, refreshToken: String)
     fun withdrawUser(email: String): String
 }

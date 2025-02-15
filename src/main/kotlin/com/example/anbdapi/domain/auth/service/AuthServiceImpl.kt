@@ -1,5 +1,8 @@
 package com.example.anbdapi.domain.auth.service
 
+import com.example.anbdapi.domain.auth.dto.request.RefreshRequest
+import com.example.anbdapi.domain.auth.dto.response.TokenResponse
+import com.example.anbdapi.domain.auth.exception.TokenExpiredException
 import com.example.anbdapi.support.utils.JwtUtil
 import org.springframework.stereotype.Service
 
@@ -9,7 +12,7 @@ class AuthServiceImpl(
     private val jwtUtil: JwtUtil
 ) : AuthService {
 
-    override fun refreshAccessToken(request: com.example.anbdapi.domain.auth.dto.request.RefreshRequest): com.example.anbdapi.domain.auth.dto.response.TokenResponse {
+    override fun refreshAccessToken(request: RefreshRequest): TokenResponse {
         val user = userService.findByEmail(request.email)
             ?: throw RuntimeException("User not found")
 
@@ -19,11 +22,11 @@ class AuthServiceImpl(
         }
 
         if (!jwtUtil.validateToken(request.refreshToken)) {
-            throw com.example.anbdapi.domain.auth.exception.TokenExpiredException("Refresh Token is invalid or expired")
+            throw TokenExpiredException("Refresh Token is invalid or expired")
         }
 
         if (!jwtUtil.validateToken(request.accessToken)) {
-            throw com.example.anbdapi.domain.auth.exception.TokenExpiredException("Access Token is expired")
+            throw TokenExpiredException("Access Token is expired")
         }
 
         // 같은 쌍의 token인지 확인하기 위해 jti를 비교
@@ -41,6 +44,6 @@ class AuthServiceImpl(
         user.refreshToken = refreshToken
         userService.save(user)
 
-        return com.example.anbdapi.domain.auth.dto.response.TokenResponse(accessToken, refreshToken)
+        return TokenResponse(accessToken, refreshToken)
     }
 }

@@ -1,5 +1,8 @@
 package com.example.anbdapi.domain.auth.controller
 
+import com.example.anbdapi.domain.auth.dto.request.RefreshRequest
+import com.example.anbdapi.domain.auth.dto.response.TokenResponse
+import com.example.anbdapi.domain.auth.service.AuthService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -14,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v1/auth")
 @Tag(name = "Auth API", description = "인증 관련 API")
 class AuthControllerImpl(
-    private val authService: com.example.anbdapi.domain.auth.service.AuthService
+    private val authService: AuthService
 ) : AuthController {
 
     @Operation(
@@ -29,7 +32,7 @@ class AuthControllerImpl(
         ]
     )
     @PostMapping("/refresh")
-    override fun refreshAccessToken(@RequestBody request: com.example.anbdapi.domain.auth.dto.request.RefreshRequest): ResponseEntity<com.example.anbdapi.domain.auth.dto.response.TokenResponse> {
+    override fun refreshAccessToken(@RequestBody request: RefreshRequest): ResponseEntity<TokenResponse> {
         return ResponseEntity.ok(authService.refreshAccessToken(request))
     }
 }
