@@ -1,9 +1,9 @@
 package com.example.anbdapi.support.configuration
 
-import com.example.anbdapi.domain.dev.auth.global.JwtAuthenticationFilter
-import com.example.anbdapi.domain.dev.auth.global.OAuth2AuthenticationSuccessHandler
 import com.example.anbdapi.domain.dev.auth.service.CustomOAuth2UserServiceImpl
-import com.example.anbdapi.domain.dev.auth.utils.JwtUtil
+import com.example.anbdapi.support.global.JwtAuthenticationFilter
+import com.example.anbdapi.support.global.OAuth2AuthenticationSuccessHandler
+import com.example.anbdapi.support.utils.JwtUtil
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

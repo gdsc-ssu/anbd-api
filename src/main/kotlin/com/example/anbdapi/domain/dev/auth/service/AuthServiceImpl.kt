@@ -3,7 +3,7 @@ package com.example.anbdapi.domain.dev.auth.service
 import com.example.anbdapi.domain.dev.auth.dto.request.RefreshRequest
 import com.example.anbdapi.domain.dev.auth.dto.response.TokenResponse
 import com.example.anbdapi.domain.dev.auth.exception.TokenExpiredException
-import com.example.anbdapi.domain.dev.auth.utils.JwtUtil
+import com.example.anbdapi.support.utils.JwtUtil
 import org.springframework.stereotype.Service
 
 @Service

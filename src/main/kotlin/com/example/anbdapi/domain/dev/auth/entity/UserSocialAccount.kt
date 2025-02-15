@@ -1,6 +1,6 @@
 package com.example.anbdapi.domain.dev.auth.entity
 
-import com.example.anbdapi.domain.dev.auth.utils.BaseTimeEntity
+import com.example.anbdapi.support.utils.BaseTimeEntity
 import jakarta.persistence.*
 import org.hibernate.annotations.Filter
 import org.hibernate.annotations.SQLDelete

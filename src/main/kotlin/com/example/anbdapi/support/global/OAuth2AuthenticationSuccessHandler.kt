@@ -1,9 +1,8 @@
-package com.example.anbdapi.domain.dev.auth.global
+package com.example.anbdapi.support.global
 
 import com.example.anbdapi.domain.dev.auth.dto.response.LoginResponse
-import com.example.anbdapi.domain.dev.auth.dto.response.TokenResponse
 import com.example.anbdapi.domain.dev.auth.service.UserService
-import com.example.anbdapi.domain.dev.auth.utils.JwtUtil
+import com.example.anbdapi.support.utils.JwtUtil
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse

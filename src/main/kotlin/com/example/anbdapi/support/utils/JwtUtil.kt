@@ -1,4 +1,4 @@
-package com.example.anbdapi.domain.dev.auth.utils
+package com.example.anbdapi.support.utils
 
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.JwtException

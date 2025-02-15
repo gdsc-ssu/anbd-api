@@ -1,4 +1,4 @@
-package com.example.anbdapi.domain.dev.auth.global
+package com.example.anbdapi.support.global
 
 import com.example.anbdapi.support.logging.TraceIdResolver
 import com.example.anbdapi.support.response.AnbdApiResponse

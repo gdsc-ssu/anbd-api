@@ -1,4 +1,4 @@
-package com.example.anbdapi.domain.dev.auth.global
+package com.example.anbdapi.support.global
 
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
