@@ -1,6 +1,5 @@
 package com.example.anbdapi.support.configuration
 
-import com.example.anbdapi.domain.dev.auth.service.CustomOAuth2UserServiceImpl
 import com.example.anbdapi.support.global.JwtAuthenticationFilter
 import com.example.anbdapi.support.global.OAuth2AuthenticationSuccessHandler
 import com.example.anbdapi.support.utils.JwtUtil
@@ -17,7 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 class SecurityConfiguration(
     private val objectMapper: ObjectMapper,
-    private val customOAuth2UserServiceImpl: CustomOAuth2UserServiceImpl,
+    private val customOAuth2UserServiceImpl: com.example.anbdapi.domain.auth.service.CustomOAuth2UserServiceImpl,
     private val oAuth2AuthenticationSuccessHandler: OAuth2AuthenticationSuccessHandler,
     private val jwtUtil: JwtUtil
 ) {
