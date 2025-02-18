@@ -1,5 +1,6 @@
 package com.example.anbdapi.support.exception
 
+import com.example.anbdapi.domain.auth.exception.TokenExpiredException
 import com.example.anbdapi.support.logging.TraceIdResolver
 import com.example.anbdapi.support.response.AnbdApiResponse
 import com.example.anbdapi.support.response.AuthResponseCode
@@ -23,9 +24,9 @@ class AuthExceptionHandler(
      *
      * 만약 accessToken에 대한 토큰 만료일 때, 최초 1회는 /auth/refresh 호출
      */
-    @ExceptionHandler(com.example.anbdapi.domain.auth.exception.TokenExpiredException::class)
+    @ExceptionHandler(TokenExpiredException::class)
     @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
-    fun handleTokenExpiredException(ex: com.example.anbdapi.domain.auth.exception.TokenExpiredException): AnbdApiResponse<ErrorResponse> {
+    fun handleTokenExpiredException(ex: TokenExpiredException): AnbdApiResponse<ErrorResponse> {
         log.error("TokenExpiredException 발생: {}", ex.message, ex)
 
         val message = ex.message ?: "토큰이 만료되었거나 올바르지 않습니다."
