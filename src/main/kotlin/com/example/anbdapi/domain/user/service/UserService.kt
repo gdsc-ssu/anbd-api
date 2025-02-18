@@ -1,20 +1,22 @@
-package com.example.anbdapi.domain.auth.service
+package com.example.anbdapi.domain.user.service
 
-import com.example.anbdapi.domain.auth.dto.request.ProfileUpdateRequest
-import com.example.anbdapi.domain.auth.entity.Gender
-import com.example.anbdapi.domain.auth.entity.Provider
-import com.example.anbdapi.domain.auth.entity.User
-import com.example.anbdapi.domain.auth.entity.UserSocialAccount
-import com.example.anbdapi.domain.auth.repository.UserRepository
-import com.example.anbdapi.domain.auth.repository.UserSocialAccountRepository
+import com.example.anbdapi.domain.user.dto.request.ProfileUpdateRequest
+import com.example.anbdapi.domain.user.dto.response.UserInformationResponse
+import com.example.anbdapi.domain.user.entity.User
+import com.example.anbdapi.domain.user.exception.UserNotFoundException
+import com.example.anbdapi.domain.user.repository.UserRepository
+import com.example.anbdapi.domain.userSocialAccount.entity.UserSocialAccount
+import com.example.anbdapi.domain.userSocialAccount.repository.UserSocialAccountRepository
+import com.example.anbdapi.support.enums.Gender
+import com.example.anbdapi.support.enums.Provider
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
 @Service
-class UserServiceImpl(
+class UserService(
     private val userRepository: UserRepository,
     private val userSocialAccountRepository: UserSocialAccountRepository
-) : UserService {
+) {
 
     /**
      * OAuth2 로그인 시 호출.
@@ -23,12 +25,12 @@ class UserServiceImpl(
      * 2. 없으면 email로 기존 유저가 있는지 확인한 후, 있으면 소셜 계정만 추가
      * 3. 유저가 없으면 기본값(예: gender=OTHER, birthDate=2000-01-01 등)을 사용해 신규 유저와 소셜 계정 생성
      */
-    override fun findOrCreateUser(
+    fun findOrCreateUser(
         registrationId: String,
         providerId: String,
         email: String,
-        name: String,
-        pictureUrl: String
+        nickname: String,
+        profileImage: String
     ): User {
         val providerEnum = Provider.valueOf(registrationId.uppercase())
         val existingSocialAccount = userSocialAccountRepository.findByProviderAndProviderId(providerEnum, providerId)
@@ -50,9 +52,9 @@ class UserServiceImpl(
 
         // 신규 유저 생성 (필수값에 기본값 사용)
         val newUser = User(
-            nickname = name,
+            nickname = nickname,
             email = email,
-            profileImage = pictureUrl,
+            profileImage = profileImage,
             gender = Gender.OTHER,
             birthDate = LocalDate.of(2000, 1, 1),
             shareCategory = null,
@@ -73,28 +75,27 @@ class UserServiceImpl(
         return newUser
     }
 
-    override fun findByEmail(email: String): User? {
+    fun findByEmail(email: String): User? {
         return userRepository.findByEmail(email)
     }
 
-    override fun save(user: User) {
+    fun save(user: User) {
         userRepository.save(user)
     }
 
-    override fun logoutUser(email: String): String {
-        val user = userRepository.findByEmail(email) ?: throw RuntimeException("User not found")
+    fun logoutUser(email: String): String {
+        val user = userRepository.findByEmail(email) ?: throw UserNotFoundException("User not found")
         user.refreshToken = null
         userRepository.save(user)
         return "Logout success"
     }
 
-    override fun updateUserProfile(email: String, request: ProfileUpdateRequest): User {
-        val user = userRepository.findByEmail(email) ?: throw RuntimeException("User not found")
+    fun updateUserProfile(email: String, request: ProfileUpdateRequest): User {
+        val user = userRepository.findByEmail(email) ?: throw UserNotFoundException("User not found")
         user.gender = request.gender
         user.birthDate = request.birthDate
-
-        // 선택적으로 닉네임, 프로필 이미지 업데이트
-        request.nickname?.let { user.nickname = it }
+        user.nickname = request.nickname;
+        // 선택적으로 프로필 이미지, 관심사 업데이트
         request.profileImage?.let { user.profileImage = it }
         request.shareCategory?.let { user.shareCategory = it }
 
@@ -103,16 +104,29 @@ class UserServiceImpl(
         return userRepository.save(user)
     }
 
-    override fun updateRefreshToken(email: String, refreshToken: String) {
-        val user = userRepository.findByEmail(email) ?: throw RuntimeException("User not found")
+    fun updateRefreshToken(email: String, refreshToken: String) {
+        val user = userRepository.findByEmail(email) ?: throw UserNotFoundException("User not found")
         user.refreshToken = refreshToken
 
         userRepository.save(user)
     }
 
-    override fun withdrawUser(email: String): String {
-        val user = userRepository.findByEmail(email) ?: throw RuntimeException("User not found")
+    fun withdrawUser(email: String): String {
+        val user = userRepository.findByEmail(email) ?: throw UserNotFoundException("User not found")
         userRepository.delete(user)
         return "Withdrawal successful"
+    }
+
+    fun getUserInfo(email: String): UserInformationResponse {
+        val user = userRepository.findByEmail(email) ?: throw UserNotFoundException("User not found")
+        return UserInformationResponse(
+                nickname = user.nickname,
+                email = user.email,
+                profileImage = user.profileImage,
+                gender = user.gender,
+                birthDate = user.birthDate,
+                shareCategory = user.shareCategory,
+                reliability = user.reliability
+            )
     }
 }
