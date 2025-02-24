@@ -1,6 +1,9 @@
-package com.example.anbdapi.domain.auth.entity
+package com.example.anbdapi.domain.user.entity
 
-import com.example.anbdapi.support.utils.BaseTimeEntity
+import com.example.anbdapi.domain.userSocialAccount.entity.UserSocialAccount
+import com.example.anbdapi.support.enums.Gender
+import com.example.anbdapi.support.enums.ShareCategory
+import com.example.anbdapi.support.utils.BaseEntity
 import jakarta.persistence.*
 import org.hibernate.annotations.Filter
 import org.hibernate.annotations.FilterDef
@@ -15,11 +18,6 @@ import java.time.LocalDateTime
 @FilterDef(name = "deletedFilter")
 @Filter(name = "deletedFilter", condition = "deleted_at IS NULL")
 class User(
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    val id: Long? = null,
 
     @Column(name = "nickname", nullable = false, unique = true, length = 64)
     var nickname: String,
@@ -52,7 +50,7 @@ class User(
 
     @Column(name = "deleted_at")
     var deletedAt: LocalDateTime? = null
-) : BaseTimeEntity()
+) : BaseEntity()
 {
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
     var socialAccounts: MutableList<UserSocialAccount> = mutableListOf()

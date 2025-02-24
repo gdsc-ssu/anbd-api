@@ -1,6 +1,8 @@
-package com.example.anbdapi.domain.auth.entity
+package com.example.anbdapi.domain.userSocialAccount.entity
 
-import com.example.anbdapi.support.utils.BaseTimeEntity
+import com.example.anbdapi.domain.user.entity.User
+import com.example.anbdapi.support.enums.Provider
+import com.example.anbdapi.support.utils.BaseEntity
 import jakarta.persistence.*
 import org.hibernate.annotations.Filter
 import org.hibernate.annotations.SQLDelete
@@ -12,11 +14,6 @@ import java.time.LocalDateTime
 // Hibernate Filter 정의: deleted_at 이 null 인 것만 조회
 @Filter(name = "deletedFilter", condition = "deleted_at IS NULL")
 class UserSocialAccount(
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    val id: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -31,4 +28,4 @@ class UserSocialAccount(
 
     @Column(name = "deleted_at")
     var deletedAt: LocalDateTime? = null
-) : BaseTimeEntity()
+) : BaseEntity()

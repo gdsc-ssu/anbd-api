@@ -1,6 +1,6 @@
-package com.example.anbdapi.domain.auth.repository
+package com.example.anbdapi.domain.user.repository
 
-import com.example.anbdapi.domain.auth.entity.User
+import com.example.anbdapi.domain.user.entity.User
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 

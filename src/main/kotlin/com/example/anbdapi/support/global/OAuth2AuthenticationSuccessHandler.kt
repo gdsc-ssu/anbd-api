@@ -1,6 +1,8 @@
 package com.example.anbdapi.support.global
 
-import com.example.anbdapi.domain.auth.service.UserService
+import com.example.anbdapi.domain.user.dto.response.LoginResponse
+import com.example.anbdapi.domain.user.exception.UserNotFoundException
+import com.example.anbdapi.domain.user.service.UserService
 import com.example.anbdapi.support.utils.JwtUtil
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.http.HttpServletRequest
@@ -32,10 +34,10 @@ class OAuth2AuthenticationSuccessHandler(
 
         userService.updateRefreshToken(email, refreshToken)
 
-        val user = userService.findByEmail(email) ?: throw RuntimeException("User not found")
+        val user = userService.findByEmail(email) ?: throw UserNotFoundException("User not found")
         // 가입 후 최초 로그인 시 프로필 미완료 상태로 간주
         val profileCompleteFlag = if (user.isProfileCompleted) 1 else 0
-        val loginResponse = com.example.anbdapi.domain.auth.dto.response.LoginResponse(accessToken, refreshToken, profileCompleteFlag)
+        val loginResponse = LoginResponse(accessToken, refreshToken, profileCompleteFlag)
 
         response.contentType = "application/json"
         response.characterEncoding = "UTF-8"

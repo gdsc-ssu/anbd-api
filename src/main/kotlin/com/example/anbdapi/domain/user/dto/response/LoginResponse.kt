@@ -1,4 +1,4 @@
-package com.example.anbdapi.domain.auth.dto.response
+package com.example.anbdapi.domain.user.dto.response
 
 data class LoginResponse(
     val accessToken: String,

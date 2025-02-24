@@ -1,4 +1,4 @@
-package com.example.anbdapi.domain.auth.entity
+package com.example.anbdapi.support.enums
 
 enum class ShareCategory {
     FOOD, DIGITAL
