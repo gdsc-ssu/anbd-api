@@ -33,7 +33,7 @@ class SecurityConfiguration(
             }.sessionManagement {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }.authorizeHttpRequests {
-                it.requestMatchers("/", "/swagger-ui/index.html", "/oauth2/**", "/api/v1/auth/refresh", "/api/v1/users/logout").permitAll()
+                it.requestMatchers("/", "/swagger-ui/**", "/oauth2/**", "/v3/api-docs/**", "/v1/auth/refresh", "/v1/users/logout").permitAll()
                     .anyRequest().authenticated()
             }.oauth2Login {
                 it.userInfoEndpoint { userInfo -> userInfo.userService(customOAuth2UserService) }

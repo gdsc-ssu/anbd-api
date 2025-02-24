@@ -16,9 +16,9 @@ abstract class BaseEntity {
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
-    lateinit var createdDate: LocalDateTime
+    lateinit var createdAt: LocalDateTime
 
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
-    lateinit var modifiedDate: LocalDateTime
+    lateinit var updatedAt: LocalDateTime
 }
