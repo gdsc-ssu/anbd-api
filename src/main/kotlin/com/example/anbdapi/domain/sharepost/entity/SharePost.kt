@@ -12,8 +12,6 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "share_post")
 @SQLDelete(sql = "UPDATE share_post SET deleted_at = NOW() WHERE id = ?")
-// FilterName 중복 오류
-//@FilterDef(name = "deletedFilter")
 @Filter(name = "deletedFilter", condition = "deleted_at IS NULL")
 class SharePost(
     @ManyToOne(fetch = FetchType.LAZY)
