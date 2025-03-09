@@ -94,7 +94,7 @@ class UserService(
         val user = userRepository.findByEmail(email) ?: throw UserNotFoundException("User not found")
         user.gender = request.gender
         user.birthDate = request.birthDate
-        user.nickname = request.nickname;
+        user.nickname = request.nickname
         // 선택적으로 프로필 이미지, 관심사 업데이트
         request.profileImage?.let { user.profileImage = it }
         request.shareCategory?.let { user.shareCategory = it }

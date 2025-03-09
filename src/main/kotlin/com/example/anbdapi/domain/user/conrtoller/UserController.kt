@@ -15,8 +15,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/v1/users")
-@Tag(name = "User API", description = "사용자 관련 API (로그아웃, 프로필 업데이트, 회원 탈퇴)")
+@RequestMapping("/v1/users")
+@Tag(name = "😀 User API", description = "사용자 관련 API (로그아웃, 프로필 업데이트, 회원 탈퇴)")
 class UserController(
     private val traceIdResolver: TraceIdResolver,
     private val userService: UserService
