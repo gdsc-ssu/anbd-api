@@ -58,10 +58,13 @@ class SharePostService(
             ?: throw UserNotFoundException("User not found")
 
         val posts = sharePostRepository.findByUser(user, pageable)
+        val postIds =  posts.map { it.id!!}.content.toList()
+
+        val allLikes = sharePostLikeRepository.findBySharePostIdIn(postIds)
 
         return posts.map { post ->
-            val likes = sharePostLikeRepository.findBySharePost(post)
-            SharePostResponse.from(post, currentUser.id, likes)
+            val postLikes = allLikes.filter { it.sharePost.id == post.id }
+            SharePostResponse.from(post, currentUser.id, postLikes)
         }
     }
 

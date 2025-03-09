@@ -15,6 +15,8 @@ interface SharePostLikeRepository : JpaRepository<SharePostLike, Long> {
 
     fun findBySharePost(sharePost: SharePost): List<SharePostLike>
 
+    fun findBySharePostIdIn(sharePostIds: List<Long>): List<SharePostLike>
+
     fun existsByUserAndSharePost(user: User, sharePost: SharePost): Boolean
 
     fun findByUserAndSharePost(user: User, sharePost: SharePost): SharePostLike?
