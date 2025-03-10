@@ -16,25 +16,13 @@ spring:
             scope:
               - profile
               - email
-#          apple: # 추가된 Apple 소셜 로그인 설정
-#            client-id: { APPLE_CLIENT_ID }         # 애플에서 발급받은 Client ID
-#            client-secret: { APPLE_CLIENT_SECRET } # 애플에서 생성한 JWT 형식의 Client Secret
-#            redirect-uri: { APPLE_REDIRECT_URI }    # 애플 로그인 후 돌아올 URI
-#            authorization-grant-type: authorization_code
-#            scope:
-#              - name
-#              - email
+
         provider:
           google:
             authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
             token-uri: https://oauth2.googleapis.com/token
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
             user-name-attribute: sub
-#          apple: # 추가된 Apple 소셜 로그인 프로바이더 설정
-#            authorization-uri: https://appleid.apple.com/auth/authorize
-#            token-uri: https://appleid.apple.com/auth/token
-#            jwk-set-uri: https://appleid.apple.com/auth/keys
-
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -60,12 +48,6 @@ jwt:
 server:
   port: 8080
 
-#kakao:
-#  client-id: ${KAKAO_CLIENT_ID}
-#  redirect-uri: ${KAKAO_REDIRECT_URI}
-#
-#jwt:
-#  secret: ${JWT_SECRET}
-#  expiration:
-#    access: ${JWT_EXPIRATION_ACCESS}
-#    refresh: ${JWT_EXPIRATION_REFRESH}
+gcs:
+  bucket-name: ${BUCKET_NAME}
+  credentials-path: ${SERVICE_ACCOUNTS_KEY}
