@@ -1,0 +1,13 @@
+package com.example.anbdapi.domain.dev.dto
+
+import jakarta.validation.constraints.Email
+import jakarta.validation.constraints.NotBlank
+
+data class DevUserRequest(
+    @field:NotBlank(message = "닉네임은 필수입니다")
+    val nickname: String,
+
+    @field:NotBlank(message = "이메일은 필수입니다")
+    @field:Email(message = "유효한 이메일 형식이 아닙니다")
+    val email: String,
+)
