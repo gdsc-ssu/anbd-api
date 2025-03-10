@@ -9,6 +9,7 @@ import org.aspectj.lang.annotation.Pointcut
 import org.hibernate.Session
 import org.springframework.stereotype.Component
 
+@Deprecated("임시로 @Where 쓰고 추후 개선 예정")
 @Aspect
 @Component
 class HibernateFilterAspect {

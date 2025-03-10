@@ -4,15 +4,16 @@ import com.example.anbdapi.domain.user.entity.User
 import com.example.anbdapi.support.enums.Provider
 import com.example.anbdapi.support.utils.BaseEntity
 import jakarta.persistence.*
-import org.hibernate.annotations.Filter
 import org.hibernate.annotations.SQLDelete
+import org.hibernate.annotations.Where
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "user_social_accounts")
 @SQLDelete(sql = "UPDATE user_social_accounts SET deleted_at = NOW() WHERE id = ?")
-// Hibernate Filter 정의: deleted_at 이 null 인 것만 조회
-@Filter(name = "deletedFilter", condition = "deleted_at IS NULL")
+@Where(clause = "deleted_at IS NULL")
+//// Hibernate Filter 정의: deleted_at 이 null 인 것만 조회
+//@Filter(name = "deletedFilter", condition = "deleted_at IS NULL")
 class UserSocialAccount(
 
     @ManyToOne(fetch = FetchType.LAZY)

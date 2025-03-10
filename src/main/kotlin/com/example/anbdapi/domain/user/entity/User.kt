@@ -8,15 +8,16 @@ import jakarta.persistence.*
 import org.hibernate.annotations.Filter
 import org.hibernate.annotations.FilterDef
 import org.hibernate.annotations.SQLDelete
+import org.hibernate.annotations.Where
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "users")
 @SQLDelete(sql = "UPDATE users SET deleted_at = NOW() WHERE id = ?")
-// Hibernate Filter 정의: deleted_at 이 null 인 것만 조회
+@Where(clause = "deleted_at IS NULL")
 @FilterDef(name = "deletedFilter")
-@Filter(name = "deletedFilter", condition = "deleted_at IS NULL")
+//@Filter(name = "deletedFilter", condition = "deleted_at IS NULL")
 class User(
 
     @Column(name = "nickname", nullable = false, unique = true, length = 64)
