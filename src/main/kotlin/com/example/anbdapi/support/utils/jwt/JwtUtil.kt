@@ -1,6 +1,8 @@
-package com.example.anbdapi.support.utils
+package com.example.anbdapi.support.utils.jwt
 
+import com.example.anbdapi.domain.auth.exception.TokenExpiredException
 import io.jsonwebtoken.Claims
+import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
@@ -26,14 +28,14 @@ class JwtUtil {
         return Keys.hmacShaKeyFor(secret.toByteArray(StandardCharsets.UTF_8))
     }
 
-    fun generateAccessToken(email: String): String {
+    fun generateAccessToken(userId: Long): String {
         val now = Date()
         val expiryDate = Date(now.time + accessTokenExpirationInMs)
         // accessToken과 refershToken이 같은 쌍인지 확인하기 위한 uuid
         val jti = UUID.randomUUID().toString()
 
         return Jwts.builder()
-            .subject(email)
+            .subject(userId.toString())
             .issuedAt(now)
             .expiration(expiryDate)
             .claim("jti", jti)
@@ -41,12 +43,12 @@ class JwtUtil {
             .compact()
     }
 
-    fun generateRefreshToken(email: String, jtiOfAccessToken: String): String {
+    fun generateRefreshToken(userId: Long, jtiOfAccessToken: String): String {
         val now = Date()
         val expiryDate = Date(now.time + refreshTokenExpirationInMs)
 
         return Jwts.builder()
-            .subject(email)
+            .subject(userId.toString())
             .issuedAt(now)
             .expiration(expiryDate)
             .claim("jti", jtiOfAccessToken) // Access Token과 동일한 jti로 Claim
@@ -61,10 +63,12 @@ class JwtUtil {
                 .build()
                 .parseSignedClaims(token)
             true
+        } catch (e: ExpiredJwtException) {
+            throw TokenExpiredException("Token has expired.")
         } catch (e: JwtException) {
-            throw JwtException("유효하지 않거나 만료된 토큰입니다.")
+            throw JwtException("Invalid token.")
         } catch (e: IllegalArgumentException) {
-            throw IllegalArgumentException("잘못된 토큰 형식입니다.")
+            throw IllegalArgumentException("Invalid token format.")
         }
     }
 
@@ -77,12 +81,42 @@ class JwtUtil {
         return claims["jti", String::class.java] ?: throw IllegalArgumentException("JTI not found in token")
     }
 
-    fun getEmailFromToken(token: String): String {
+    fun getUserIdFromToken(token: String): String {
         val claims: Claims = Jwts.parser()
             .verifyWith(getSigningKey())
             .build()
             .parseSignedClaims(token)
             .payload
-        return claims.subject ?: throw IllegalArgumentException("Email not found in token")
+        return claims.subject ?: throw IllegalArgumentException("UserId not found in token")
+    }
+
+    fun getUserIdFromExpiredToken(token: String): String {
+        try {
+            val claims: Claims = Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .payload
+            return claims.subject ?: throw IllegalArgumentException("UserId not found in token")
+        } catch (e: ExpiredJwtException) {
+            return e.claims.subject ?: throw IllegalArgumentException("UserId not found in token")
+        } catch (e: Exception) {
+            throw JwtException("Invalid token format")
+        }
+    }
+
+    fun getJtiFromExpiredToken(token: String): String {
+        try {
+            val claims: Claims = Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .payload
+            return claims["jti", String::class.java] ?: throw IllegalArgumentException("JTI not found in token")
+        } catch (e: ExpiredJwtException) {
+            return e.claims["jti", String::class.java] ?: throw IllegalArgumentException("JTI not found in token")
+        } catch (e: Exception) {
+            throw JwtException("Invalid token format")
+        }
     }
 }
