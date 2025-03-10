@@ -31,7 +31,6 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
-    // OAuth2 추가
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
@@ -42,6 +41,9 @@ dependencies {
 
     implementation("org.springdoc", "springdoc-openapi-starter-common", springDocVersion)
     implementation("org.springdoc", "springdoc-openapi-starter-webmvc-ui", springDocVersion)
+
+    implementation("com.google.cloud:google-cloud-storage:2.30.1")
+    implementation("commons-io:commons-io:2.15.1")
 
     runtimeOnly("org.postgresql:postgresql")
 
