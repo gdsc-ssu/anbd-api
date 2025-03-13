@@ -29,7 +29,7 @@ class AuthController(
             ApiResponse(responseCode = "401", description = "잘못된 요청 또는 토큰 오류"),
         ]
     )
-    @PostMapping("/refresh")
+    @PostMapping("/tokens/refresh")
     fun refreshAccessToken(
         @RequestHeader("Authorization") authHeader: String,
         @RequestBody request: RefreshRequest): AnbdApiResponse<TokenResponse> {
