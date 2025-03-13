@@ -33,7 +33,8 @@ class DevService(
             profileImage = null,
             gender = Gender.OTHER,
             birthDate = LocalDate.of(2000, 1, 1),
-            shareCategory = null,
+            neighborhood = null,
+            shareCategories = mutableListOf(),
             reliability = 0,
             refreshToken = null,
             isProfileCompleted = true,
@@ -58,11 +59,7 @@ class DevService(
         user.refreshToken = refreshToken
         userRepository.save(user)
 
-        return LoginResponse(
-            accessToken = accessToken,
-            refreshToken = refreshToken,
-            profileComplete = true
-        )
+        return LoginResponse.from(accessToken, refreshToken, user)
     }
 
     @Transactional
@@ -83,10 +80,6 @@ class DevService(
         user.refreshToken = refreshToken
         userRepository.save(user)
 
-        return LoginResponse(
-            accessToken = accessToken,
-            refreshToken = refreshToken,
-            profileComplete = user.isProfileCompleted
-        )
+        return LoginResponse.from(accessToken, refreshToken, user)
     }
 }

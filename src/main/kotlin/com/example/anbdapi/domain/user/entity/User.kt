@@ -5,19 +5,17 @@ import com.example.anbdapi.support.enums.Gender
 import com.example.anbdapi.support.enums.ShareCategory
 import com.example.anbdapi.support.utils.BaseEntity
 import jakarta.persistence.*
-import org.hibernate.annotations.Filter
 import org.hibernate.annotations.FilterDef
 import org.hibernate.annotations.SQLDelete
-import org.hibernate.annotations.Where
+import org.hibernate.annotations.SQLRestriction
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "users")
 @SQLDelete(sql = "UPDATE users SET deleted_at = NOW() WHERE id = ?")
-@Where(clause = "deleted_at IS NULL")
+@SQLRestriction("deleted_at is NULL")
 @FilterDef(name = "deletedFilter")
-//@Filter(name = "deletedFilter", condition = "deleted_at IS NULL")
 class User(
 
     @Column(name = "nickname", nullable = false, unique = true, length = 64)
@@ -36,9 +34,16 @@ class User(
     @Column(name = "birth_date", nullable = false)
     var birthDate: LocalDate,
 
+    @Column(name = "neighborhood", length = 100)
+    var neighborhood: String? = null,
+
+    @ElementCollection
+    @CollectionTable(
+        name = "user_share_categories", joinColumns = [JoinColumn(name = "user_id")]
+    )
     @Enumerated(EnumType.STRING)
     @Column(name = "share_category")
-    var shareCategory: ShareCategory? = null,
+    var shareCategories: MutableList<ShareCategory> = mutableListOf(),
 
     @Column(name = "reliability", nullable = false)
     var reliability: Int = 0,
