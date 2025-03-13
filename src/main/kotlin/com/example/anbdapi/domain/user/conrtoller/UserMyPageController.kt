@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
 @RestController
-@RequestMapping("/v1/mypage")
+@RequestMapping("/v1/users/me")
 @Tag(name = "👤 MyPage API", description = "마이페이지 관련 API (활동 내역, 좋아요 목록 등)")
 class UserMyPageController(
     private val traceIdResolver: TraceIdResolver,
