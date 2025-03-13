@@ -2,9 +2,8 @@ package com.example.anbdapi.domain.user.conrtoller
 
 import com.example.anbdapi.domain.user.dto.request.ProfileUpdateRequest
 import com.example.anbdapi.domain.user.dto.response.UserInformationResponse
-import com.example.anbdapi.domain.user.exception.UserNotFoundException
-import com.example.anbdapi.domain.user.service.UserImageService
-import com.example.anbdapi.domain.user.service.UserService
+import com.example.anbdapi.domain.user.dto.response.UserProfileResponse
+import com.example.anbdapi.domain.user.facade.UserFacade
 import com.example.anbdapi.support.logging.TraceIdResolver
 import com.example.anbdapi.support.response.AnbdApiResponse
 import io.swagger.v3.oas.annotations.Operation
@@ -12,18 +11,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import org.springframework.http.MediaType
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/v1/users")
 @Tag(name = "😀 User API", description = "사용자 관련 API (로그아웃, 프로필 업데이트, 회원 탈퇴)")
 class UserController(
     private val traceIdResolver: TraceIdResolver,
-    private val userService: UserService,
-    private val userImageService: UserImageService
+    private val userFacade: UserFacade
 ) {
 
     @Operation(
@@ -39,10 +35,7 @@ class UserController(
     @PostMapping("/logout")
     fun logout(authentication: Authentication): AnbdApiResponse<String> {
 
-        val user = userService.getCurrentUser(authentication)
-            ?: throw UserNotFoundException("User not found")
-
-        val result = userService.logoutUser(user.id!!)
+        val result = userFacade.logout(authentication)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -51,8 +44,8 @@ class UserController(
     }
 
     @Operation(
-        summary = "사용자 프로필 업데이트",
-        description = "사용자의 프로필 정보를 업데이트합니다."
+        summary = "최초 회원가입시 사용자 프로필 업데이트",
+        description = "최초로 사용자가 회원가입할 때 추가로 받은사용자의 성별, 생년월일, 동네, 관심 카테고리 정보를 업데이트합니다."
     )
     @ApiResponses(
         value = [
@@ -67,14 +60,11 @@ class UserController(
         @Valid @RequestBody request: ProfileUpdateRequest
     ): AnbdApiResponse<String> {
 
-        val user = userService.getCurrentUser(authentication)
-            ?: throw UserNotFoundException("User not found")
-
-        userService.updateUserProfile(user.id!!, request)
+        val result = userFacade.updateProfile(authentication, request)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
-            body = "Profile updated successfully"
+            body = result
         )
     }
 
@@ -89,13 +79,10 @@ class UserController(
             ApiResponse(responseCode = "401", description = "인증 실패")
         ]
     )
-    @PatchMapping("/withdraw")
+    @DeleteMapping("/withdraw")
     fun withdraw(authentication: Authentication): AnbdApiResponse<String> {
 
-        val user = userService.getCurrentUser(authentication)
-            ?: throw UserNotFoundException("User not found")
-
-        val result = userService.deleteUser(user.id!!)
+        val result = userFacade.withdrawUser(authentication)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -117,10 +104,7 @@ class UserController(
     @GetMapping("/me")
     fun me(authentication: Authentication): AnbdApiResponse<UserInformationResponse> {
 
-        val user = userService.getCurrentUser(authentication)
-            ?: throw UserNotFoundException("User not found")
-
-        val result = userService.getUserInfo(user.id!!)
+        val result = userFacade.getMyInfo(authentication)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -129,30 +113,50 @@ class UserController(
     }
 
     @Operation(
-        summary = "사용자 프로필 이미지 생성/업데이트",
-        description = "사용자의 프로필 이미지를 업로드합니다."
+        summary = "특정 사용자 정보 조회",
+        description = "사용자 ID를 통해 특정 사용자의 전체 정보를 반환합니다."
     )
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "이미지 업로드 성공"),
+            ApiResponse(responseCode = "200", description = "사용자 정보 조회 성공"),
             ApiResponse(responseCode = "400", description = "잘못된 요청"),
-            ApiResponse(responseCode = "401", description = "인증 실패")
+            ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음")
         ]
     )
-    @PostMapping("/profile-image", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
-    fun uploadProfileImage(
-        authentication: Authentication,
-        @RequestParam("image") file: MultipartFile
-    ): AnbdApiResponse<String> {
+    @GetMapping("/{userId}")
+    fun getUserInformation(
+        @PathVariable userId: Long
+    ): AnbdApiResponse<UserInformationResponse> {
 
-        val user = userService.getCurrentUser(authentication)
-            ?: throw UserNotFoundException("User not found")
-
-        val imageUrl = userImageService.uploadImage(user.id!!, file)
+        val result = userFacade.getUserInfo(userId)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
-            body = imageUrl
+            body = result
+        )
+    }
+
+    @Operation(
+        summary = "특정 사용자 프로필 조회",
+        description = "사용자 ID를 통해 특정 사용자의 프로필 정보를 반환합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "프로필 조회 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음")
+        ]
+    )
+    @GetMapping("/{userId}/profile")
+    fun getUserProfile(
+        @PathVariable userId: Long
+    ): AnbdApiResponse<UserProfileResponse> {
+
+        val result = userFacade.getUserProfile(userId)
+
+        return AnbdApiResponse.success(
+            traceId = traceIdResolver.getTraceId(),
+            body = result
         )
     }
 }

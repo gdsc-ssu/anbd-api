@@ -76,15 +76,14 @@ class UserImageService (
     }
 
     private fun validateImage(file: MultipartFile) {
-
         if (file.isEmpty) {
-            throw IllegalArgumentException("Empty file.")
+            throw UserImageUploadException("Empty file.")
         }
 
         val allowedTypes = listOf("image/jpeg", "image/png")
         val contentType = file.contentType
         if (contentType == null || !allowedTypes.contains(contentType)) {
-            throw IllegalArgumentException("Image allow only jpg, png")
+            throw UserImageUploadException("Image allow only jpg, png")
         }
     }
 }

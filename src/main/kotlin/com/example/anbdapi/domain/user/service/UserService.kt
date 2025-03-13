@@ -2,6 +2,7 @@ package com.example.anbdapi.domain.user.service
 
 import com.example.anbdapi.domain.user.dto.request.ProfileUpdateRequest
 import com.example.anbdapi.domain.user.dto.response.UserInformationResponse
+import com.example.anbdapi.domain.user.dto.response.UserProfileResponse
 import com.example.anbdapi.domain.user.entity.User
 import com.example.anbdapi.domain.user.exception.UserNotFoundException
 import com.example.anbdapi.domain.user.repository.UserRepository
@@ -61,7 +62,7 @@ class UserService(
             profileImage = profileImage,
             gender = Gender.OTHER,
             birthDate = LocalDate.of(2000, 1, 1),
-            shareCategory = null,
+            shareCategories = mutableListOf(),
             reliability = 0,
             refreshToken = null,
             deletedAt = null
@@ -97,17 +98,14 @@ class UserService(
     }
 
     @Transactional
-    fun updateUserProfile(userId : Long, request: ProfileUpdateRequest): User {
-
+    fun updateUserProfile(userId: Long, request: ProfileUpdateRequest): User {
         val user = userRepository.findById(userId).orElse(null)
             ?: throw UserNotFoundException("User not found")
 
         user.gender = request.gender
         user.birthDate = request.birthDate
-        user.nickname = request.nickname
-        // 선택적으로 프로필 이미지, 관심사 업데이트
-        request.profileImage?.let { user.profileImage = it }
-        request.shareCategory?.let { user.shareCategory = it }
+        user.neighborhood = request.neighborhood
+        user.shareCategories = request.shareCategories
 
         user.isProfileCompleted = true
 
@@ -136,18 +134,12 @@ class UserService(
 
     fun getUserInfo(userId: Long): UserInformationResponse {
         val user = userRepository.findById(userId).orElse(null)
-        return UserInformationResponse(
-                nickname = user.nickname,
-                email = user.email,
-                profileImage = user.profileImage,
-                gender = user.gender,
-                birthDate = user.birthDate,
-                shareCategory = user.shareCategory,
-                reliability = user.reliability
-            )
+            ?: throw UserNotFoundException("User not found")
+
+        return UserInformationResponse.from(user)
     }
 
-    fun getCurrentUser(authentication: Authentication): User? {
+    fun getCurrentUserNotNull(authentication: Authentication): User {
         require(authentication.isAuthenticated) { "Authentication Invalid." }
 
         val principal = authentication.principal as? DefaultOAuth2User
@@ -157,9 +149,34 @@ class UserService(
             ?: throw SecurityException("UserId not found in authentication attributes.")
 
         return userRepository.findById(userId.toLong()).orElse(null)
+            ?: throw UserNotFoundException("User not found")
     }
 
-    fun getUserById(userId: Long): User? {
+    fun getUserById(userId: Long): User {
         return userRepository.findById(userId).orElse(null)
+            ?: throw UserNotFoundException("User not found")
+    }
+
+    @Transactional
+    fun updateProfileImageAndNickname(userId: Long, nickname: String?, imageUrl: String?): User {
+        val user = userRepository.findById(userId).orElse(null)
+            ?: throw UserNotFoundException("User not found")
+
+        nickname?.let {
+            user.nickname = it
+        }
+
+        imageUrl?.let {
+            user.profileImage = it
+        }
+
+        return userRepository.save(user)
+    }
+
+    fun getUserProfile(userId: Long): UserProfileResponse {
+        val user = userRepository.findById(userId).orElse(null)
+            ?: throw UserNotFoundException("User not found")
+
+        return UserProfileResponse.from(user)
     }
 }
