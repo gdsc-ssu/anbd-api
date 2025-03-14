@@ -3,7 +3,7 @@ package com.example.anbdapi.domain.user.conrtoller
 import com.example.anbdapi.domain.user.dto.request.ProfileUpdateRequest
 import com.example.anbdapi.domain.user.dto.response.UserInformationResponse
 import com.example.anbdapi.domain.user.dto.response.UserProfileResponse
-import com.example.anbdapi.domain.user.facade.UserFacade
+import com.example.anbdapi.domain.user.service.UserApplicationService
 import com.example.anbdapi.support.logging.TraceIdResolver
 import com.example.anbdapi.support.response.AnbdApiResponse
 import io.swagger.v3.oas.annotations.Operation
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "😀 User API", description = "사용자 관련 API (로그아웃, 프로필 업데이트, 회원 탈퇴)")
 class UserController(
     private val traceIdResolver: TraceIdResolver,
-    private val userFacade: UserFacade
+    private val userApplicationService: UserApplicationService
 ) {
 
     @Operation(
@@ -35,7 +35,7 @@ class UserController(
     @PostMapping("/logout")
     fun logout(authentication: Authentication): AnbdApiResponse<String> {
 
-        val result = userFacade.logout(authentication)
+        val result = userApplicationService.logout(authentication)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -60,7 +60,7 @@ class UserController(
         @Valid @RequestBody request: ProfileUpdateRequest
     ): AnbdApiResponse<String> {
 
-        val result = userFacade.updateProfile(authentication, request)
+        val result = userApplicationService.updateProfile(authentication, request)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -82,7 +82,7 @@ class UserController(
     @DeleteMapping("/withdraw")
     fun withdraw(authentication: Authentication): AnbdApiResponse<String> {
 
-        val result = userFacade.withdrawUser(authentication)
+        val result = userApplicationService.withdrawUser(authentication)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -104,7 +104,7 @@ class UserController(
     @GetMapping("/me")
     fun me(authentication: Authentication): AnbdApiResponse<UserInformationResponse> {
 
-        val result = userFacade.getMyInfo(authentication)
+        val result = userApplicationService.getMyInfo(authentication)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -128,7 +128,7 @@ class UserController(
         @PathVariable userId: Long
     ): AnbdApiResponse<UserInformationResponse> {
 
-        val result = userFacade.getUserInfo(userId)
+        val result = userApplicationService.getUserInfo(userId)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -152,7 +152,7 @@ class UserController(
         @PathVariable userId: Long
     ): AnbdApiResponse<UserProfileResponse> {
 
-        val result = userFacade.getUserProfile(userId)
+        val result = userApplicationService.getUserProfile(userId)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),

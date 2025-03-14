@@ -4,7 +4,7 @@ import com.example.anbdapi.domain.sharepost.controller.response.SharePostRespons
 import com.example.anbdapi.domain.user.dto.request.ProfileImageNicknameRequest
 import com.example.anbdapi.domain.user.dto.response.UserProfileResponse
 import com.example.anbdapi.domain.user.exception.UserProfileImageNicknameException
-import com.example.anbdapi.domain.user.facade.UserFacade
+import com.example.anbdapi.domain.user.service.UserApplicationService
 import com.example.anbdapi.support.logging.TraceIdResolver
 import com.example.anbdapi.support.response.AnbdApiResponse
 import io.swagger.v3.oas.annotations.Operation
@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile
 @Tag(name = "👤 MyPage API", description = "마이페이지 관련 API (활동 내역, 좋아요 목록 등)")
 class UserMyPageController(
     private val traceIdResolver: TraceIdResolver,
-    private val userFacade: UserFacade
+    private val userApplicationService: UserApplicationService
 ) {
     @Operation(
         summary = "현재 사용자 관심 나눔글 목록 조회",
@@ -42,7 +42,7 @@ class UserMyPageController(
         pageable: Pageable
     ): AnbdApiResponse<Page<SharePostResponse>> {
 
-        val likedPosts = userFacade.getLikedPosts(authentication, pageable)
+        val likedPosts = userApplicationService.getLikedPosts(authentication, pageable)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -63,7 +63,7 @@ class UserMyPageController(
     @GetMapping("/profile")
     fun getUserProfile(authentication: Authentication): AnbdApiResponse<UserProfileResponse> {
 
-        val userProfile = userFacade.getMyProfile(authentication)
+        val userProfile = userApplicationService.getMyProfile(authentication)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -95,7 +95,7 @@ class UserMyPageController(
 
         val request = ProfileImageNicknameRequest.from(nickname, profileImage)
 
-        val result = userFacade.updateProfileImageAndNickname(authentication, request)
+        val result = userApplicationService.updateProfileImageAndNickname(authentication, request)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -120,7 +120,7 @@ class UserMyPageController(
         pageable: Pageable
     ): AnbdApiResponse<Page<SharePostResponse>> {
 
-        val sharedPosts = userFacade.getMySharedPosts(authentication, pageable)
+        val sharedPosts = userApplicationService.getMySharedPosts(authentication, pageable)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
