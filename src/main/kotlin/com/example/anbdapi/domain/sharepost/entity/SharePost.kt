@@ -40,8 +40,8 @@ class SharePost(
     @Column(name = "description", columnDefinition = "TEXT")
     var description: String? = null,
 
-    @Column(name = "location", length = 512)
-    var location: String? = null,
+    @Column(name = "location", nullable = false, length = 512)
+    var location: String,
 
     @Column(name = "is_sold")
     var isSold: Boolean = false,
