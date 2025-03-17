@@ -8,6 +8,8 @@ import com.example.anbdapi.domain.sharepost.repository.SharePostLikeRepository
 import com.example.anbdapi.domain.sharepost.repository.SharePostRepository
 import com.example.anbdapi.domain.user.exception.UserNotFoundException
 import com.example.anbdapi.domain.user.repository.UserRepository
+import com.example.anbdapi.support.enums.ShareCategory
+import com.example.anbdapi.support.enums.ShareType
 import jakarta.transaction.Transactional
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -48,6 +50,28 @@ class SharePostService(
         val likes = sharePostLikeRepository.findBySharePost(post)
 
         return SharePostResponse.from(post, currentUser.id, likes)
+    }
+
+    fun getPosts(email: String, keyword: String?, location: String?, category: ShareCategory?, type: ShareType?, pageable: Pageable): Page<SharePostResponse> {
+        val currentUser = userRepository.findByEmail(email)
+            ?: throw UserNotFoundException("Current user not found")
+
+        val posts = sharePostRepository.findPosts(
+            keyword = keyword,
+            location = location,
+            category = category,
+            type = type,
+            pageable = pageable
+        )
+
+        val postIds =  posts.map { it.id!!}.content.toList()
+
+        val allLikes = sharePostLikeRepository.findBySharePostIdIn(postIds)
+
+        return posts.map { post ->
+            val postLikes = allLikes.filter { it.sharePost.id == post.id }
+            SharePostResponse.from(post, currentUser.id, postLikes)
+        }
     }
 
     fun getUserPosts(email: String, userId: Long, pageable: Pageable): Page<SharePostResponse> {

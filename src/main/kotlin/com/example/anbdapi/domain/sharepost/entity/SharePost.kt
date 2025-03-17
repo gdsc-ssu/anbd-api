@@ -40,6 +40,12 @@ class SharePost(
     @Column(name = "description", columnDefinition = "TEXT")
     var description: String? = null,
 
+    @Column(name = "location", length = 512)
+    var location: String? = null,
+
+    @Column(name = "is_sold")
+    var isSold: Boolean = false,
+
     @Column(name = "deleted_at")
     var deletedAt: LocalDateTime? = null
 ) : BaseEntity()

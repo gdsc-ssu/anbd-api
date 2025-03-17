@@ -5,6 +5,8 @@ import com.example.anbdapi.domain.sharepost.controller.response.SharePostLikeRes
 import com.example.anbdapi.domain.sharepost.controller.response.SharePostResponse
 import com.example.anbdapi.domain.sharepost.service.SharePostLikeService
 import com.example.anbdapi.domain.sharepost.service.SharePostService
+import com.example.anbdapi.support.enums.ShareCategory
+import com.example.anbdapi.support.enums.ShareType
 import com.example.anbdapi.support.logging.TraceIdResolver
 import com.example.anbdapi.support.response.AnbdApiResponse
 import io.swagger.v3.oas.annotations.Operation
@@ -71,6 +73,36 @@ class SharePostController(
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
             body = post
+        )
+    }
+
+    @Operation(
+        summary = "나눔글 전체 조회",
+        description = "나눔글을 전체 조회합니다. 키워드, 카테고리 등을 설정할 수 있습니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "나눔글 조회 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청")
+        ]
+    )
+    @GetMapping
+    fun getPosts(
+        @AuthenticationPrincipal oAuth2User: OAuth2User,
+        @RequestParam(required = false) keyword: String?,
+        @RequestParam(required = false) location: String?,
+        @RequestParam(required = false) category: ShareCategory?,
+        @RequestParam(required = false) type: ShareType?,
+        pageable: Pageable
+    ): AnbdApiResponse<Page<SharePostResponse>> {
+        val email = oAuth2User.attributes["email"] as? String
+            ?: throw IllegalArgumentException("Email not found in authentication data")
+
+        val posts = sharePostService.getPosts(email, keyword, location, category, type, pageable)
+
+        return AnbdApiResponse.success(
+            traceId = traceIdResolver.getTraceId(),
+            body = posts
         )
     }
 
