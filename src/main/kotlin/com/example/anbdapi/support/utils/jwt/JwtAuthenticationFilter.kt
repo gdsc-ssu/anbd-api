@@ -25,8 +25,18 @@ class JwtAuthenticationFilter(
     private val traceIdResolver: TraceIdResolver
 ) : OncePerRequestFilter() {
 
+    private val excludedUrls = listOf(
+        "/v1/auth/mobile/google",
+        "/v1/auth/tokens/refresh",
+        "/v1/users/logout"
+    )
+
+    private fun isExcludedUrl(requestUri: String): Boolean {
+        return excludedUrls.contains(requestUri)
+    }
+
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
-        return request.requestURI.equals("/v1/auth/refresh") // 추후 requestURI가 많아지면 list로 개선 예정
+        return isExcludedUrl(request.requestURI)
     }
 
     override fun doFilterInternal(
@@ -35,6 +45,12 @@ class JwtAuthenticationFilter(
         filterChain: FilterChain
     ) {
         try {
+
+            if (isExcludedUrl(request.requestURI)) {
+                filterChain.doFilter(request, response)
+                return
+            }
+
             val header = request.getHeader("Authorization") ?: ""
             if (header.startsWith("Bearer ")) {
                 val token = header.removePrefix("Bearer ").trim()

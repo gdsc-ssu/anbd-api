@@ -1,5 +1,6 @@
 package com.example.anbdapi.support.exception
 
+import com.example.anbdapi.domain.auth.exception.GoogleAuthException
 import com.example.anbdapi.domain.auth.exception.TokenExpiredException
 import com.example.anbdapi.support.logging.TraceIdResolver
 import com.example.anbdapi.support.response.AnbdApiResponse
@@ -53,6 +54,19 @@ class AuthExceptionHandler(
             status = HttpStatus.UNAUTHORIZED,
             code = AuthResponseCode.AUTH_02,
             body = body
+        )
+    }
+
+    @ExceptionHandler(GoogleAuthException::class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    fun handleGoogleAuthException(ex: GoogleAuthException): AnbdApiResponse<ErrorResponse> {
+        log.warn("GoogleAuthException 발생: {}", ex.message)
+
+        return AnbdApiResponse.of(
+            traceId = traceIdResolver.getTraceId(),
+            status = HttpStatus.UNAUTHORIZED,
+            code = AuthResponseCode.AUTH_03,
+            body = ErrorResponse(ex.message ?: "Google 인증에 실패했습니다.")
         )
     }
 }

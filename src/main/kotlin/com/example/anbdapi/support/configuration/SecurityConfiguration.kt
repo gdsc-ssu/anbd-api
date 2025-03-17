@@ -37,7 +37,7 @@ class SecurityConfiguration(
             }.sessionManagement {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }.authorizeHttpRequests {
-                it.requestMatchers("/", "/swagger-ui/**", "/oauth2/**", "/v3/api-docs/**", "/v1/auth/refresh", "/v1/users/logout", "/dev/**").permitAll()
+                it.requestMatchers("/", "/swagger-ui/**", "/oauth2/**", "/v3/api-docs/**", "/v1/auth/tokens/refresh", "/v1/users/logout", "/dev/**", "/v1/auth/mobile/google").permitAll()
                     .anyRequest().authenticated()
             }.oauth2Login {
                 it.userInfoEndpoint { userInfo -> userInfo.userService(customOAuth2UserService) }
