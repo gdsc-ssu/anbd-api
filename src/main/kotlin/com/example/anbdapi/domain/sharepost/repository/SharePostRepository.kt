@@ -32,13 +32,13 @@ interface SharePostRepository : JpaRepository<SharePost, Long> {
         WHERE sp.isSold = false
         AND (sp.deletedAt IS NULL)
         AND (:keyword IS NULL OR sp.title LIKE %:keyword% OR sp.content LIKE %:keyword%)
-        AND (:location IS NULL OR sp.location = :location)
+        AND (sp.location = :location)
         AND (:category IS NULL OR sp.category = :category)
         AND sp.type = :type
     """)
     fun findPosts(
         @Param("keyword") keyword: String?,
-        @Param("location") location: String?,
+        @Param("location") location: String,
         @Param("category") category: ShareCategory?,
         @Param("type") type: ShareType?,
         pageable: Pageable

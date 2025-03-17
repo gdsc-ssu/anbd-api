@@ -64,11 +64,11 @@ class SharePostService(
     }
 
     fun getPosts(authentication: Authentication, keyword: String?, location: String?, category: ShareCategory?, type: ShareType?, pageable: Pageable): Page<SharePostResponse> {
-        val currentUserId = userApplicationService.getCurrentUserId(authentication)
+        val currentUser = userApplicationService.getCurrentUser(authentication)
 
         val posts = sharePostRepository.findPosts(
             keyword = keyword,
-            location = location,
+            location = location ?: currentUser.neighborhood,    // TODO: 사용자가 인증한 동네로 변경
             category = category,
             type = type,
             pageable = pageable
@@ -80,7 +80,7 @@ class SharePostService(
 
         return posts.map { post ->
             val postLikes = allLikes.filter { it.sharePost.id == post.id }
-            SharePostResponse.from(post, currentUserId, postLikes)
+            SharePostResponse.from(post, currentUser.id!!, postLikes)
         }
     }
 
