@@ -6,6 +6,7 @@ import com.example.anbdapi.support.enums.ShareType
 import com.example.anbdapi.support.utils.BaseEntity
 import jakarta.persistence.*
 import org.hibernate.annotations.Filter
+import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.annotations.SQLDelete
 import java.time.LocalDateTime
 
@@ -28,10 +29,9 @@ class SharePost(
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     var content: String,
 
-    @ElementCollection
-    @CollectionTable(name = "share_post_images", joinColumns = [JoinColumn(name = "share_post_id")])
-    @Column(name = "image_url", length = 2048)
-    var images: List<String> = listOf(),
+    @Column(name = "image_urls", columnDefinition = "TEXT[]")
+    @JdbcTypeCode(java.sql.Types.ARRAY)
+    var imageUrls: List<String> = listOf(),
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)

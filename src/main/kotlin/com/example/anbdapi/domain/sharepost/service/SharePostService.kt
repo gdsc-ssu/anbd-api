@@ -9,6 +9,7 @@ import com.example.anbdapi.domain.sharepost.repository.SharePostRepository
 import com.example.anbdapi.domain.user.exception.UserNotFoundException
 import com.example.anbdapi.domain.user.repository.UserRepository
 import com.example.anbdapi.domain.user.service.UserApplicationService
+import com.example.anbdapi.domain.user.service.UserImageService
 import com.example.anbdapi.support.enums.ShareCategory
 import com.example.anbdapi.support.enums.ShareType
 import jakarta.transaction.Transactional
@@ -21,21 +22,26 @@ import org.springframework.stereotype.Service
 @Service
 class SharePostService(
     private val userApplicationService: UserApplicationService,
+    private val userImageService: UserImageService,
     private val sharePostRepository: SharePostRepository,
     private val sharePostLikeRepository: SharePostLikeRepository,
     private val userRepository: UserRepository
 ) {
     @Transactional
-    fun createPost(userId: Long, request: SharePostRequest): SharePost {
-        val user = userRepository.findByIdOrNull(userId)
-            ?: throw UserNotFoundException("User not found")
+    fun createPost(authentication: Authentication, request: SharePostRequest): SharePost {
+        val currentUser = userApplicationService.getCurrentUser(authentication)
+
+        val imageUrls: MutableList<String> = mutableListOf()
+        request.images.map {
+            imageUrls.add(userImageService.uploadSharePostImage(currentUser, it))
+        }
 
         val post = SharePost(
-            user = user,
+            user = currentUser,
             title = request.title,
             category = request.category,
             content = request.content,
-            images = request.images,
+            imageUrls = imageUrls,
             type = request.type,
             description = request.description
         )
@@ -96,21 +102,31 @@ class SharePostService(
 
     @Transactional
     fun updatePost(authentication: Authentication, postId: Long, request: SharePostRequest): SharePostResponse {
-        val currentUserId = userApplicationService.getCurrentUserId(authentication)
+        val currentUser = userApplicationService.getCurrentUser(authentication)
 
         val post = sharePostRepository.findByIdOrNull(postId)
             ?: throw SharePostNotFoundException("Post not found")
 
         val likes = sharePostLikeRepository.findBySharePost(post)
 
+        // TODO: 삭제 할 이미지만 삭제하고 추가할 이미지만 추가하도록 수정
+        post.imageUrls.map {
+            userImageService.deleteImage(it)
+        }
+
+        val imageUrls: MutableList<String> = mutableListOf()
+        request.images.map {
+            imageUrls.add(userImageService.uploadSharePostImage(currentUser, it))
+        }
+
         post.title = request.title
         post.category = request.category
         post.content = request.content
-        post.images = request.images
+        post.imageUrls = imageUrls
         post.type = request.type
         post.description = request.description
 
-        return SharePostResponse.from(post, currentUserId, likes)
+        return SharePostResponse.from(post, currentUser.id!!, likes)
     }
 
     @Transactional

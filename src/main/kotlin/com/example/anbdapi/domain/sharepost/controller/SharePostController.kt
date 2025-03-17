@@ -15,8 +15,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.http.MediaType
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @Tag(name = "📮 SharePost API", description = "나눔글 관련 API (생성, 조회, 수정, 삭제)")
@@ -36,12 +38,19 @@ class SharePostController(
             ApiResponse(responseCode = "400", description = "잘못된 요청")
         ]
     )
-    @PostMapping
+    @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun createPost(
-        @RequestParam userId: Long,
-        @RequestBody request: SharePostRequest
+        authentication: Authentication,
+        @RequestPart title: String,
+        @RequestParam category: ShareCategory,
+        @RequestParam content: String,
+        @RequestPart images: List<MultipartFile>,
+        @RequestParam type: ShareType,
+        @RequestParam description: String?
     ): AnbdApiResponse<SharePostResponse> {
-        val post = sharePostService.createPost(userId, request)
+        val request = SharePostRequest.from(title, category, content, images, type, description)
+
+        val post = sharePostService.createPost(authentication, request)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -137,8 +146,15 @@ class SharePostController(
     fun updatePost(
         authentication: Authentication,
         @PathVariable postId: Long,
-        @RequestBody request: SharePostRequest
+        @RequestParam title: String,
+        @RequestParam category: ShareCategory,
+        @RequestParam content: String,
+        @RequestPart images: List<MultipartFile>,
+        @RequestParam type: ShareType,
+        @RequestParam description: String?
     ): AnbdApiResponse<SharePostResponse> {
+        val request = SharePostRequest(title, category, content, images, type, description)
+
         val updatedPost = sharePostService.updatePost(authentication, postId, request)
 
         return AnbdApiResponse.success(
