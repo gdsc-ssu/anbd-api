@@ -2,6 +2,7 @@ package com.example.anbdapi.domain.user.conrtoller
 
 import com.example.anbdapi.domain.sharepost.controller.response.SharePostResponse
 import com.example.anbdapi.domain.user.dto.request.ProfileImageNicknameRequest
+import com.example.anbdapi.domain.user.dto.response.UserInformationResponse
 import com.example.anbdapi.domain.user.dto.response.UserProfileResponse
 import com.example.anbdapi.domain.user.exception.UserProfileImageNicknameException
 import com.example.anbdapi.domain.user.service.UserApplicationService
@@ -21,10 +22,33 @@ import org.springframework.web.multipart.MultipartFile
 @RestController
 @RequestMapping("/v1/users/me")
 @Tag(name = "👤 MyPage API", description = "마이페이지 관련 API (활동 내역, 좋아요 목록 등)")
-class UserMyPageController(
+class UserMyContentController(
     private val traceIdResolver: TraceIdResolver,
     private val userApplicationService: UserApplicationService
 ) {
+
+    @Operation(
+        summary = "현재 사용자 정보 반환",
+        description = "현재 로그인한 사용자의 정보를 반환합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "회원 정보 요청 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            ApiResponse(responseCode = "401", description = "인증 실패")
+        ]
+    )
+    @GetMapping
+    fun me(authentication: Authentication): AnbdApiResponse<UserInformationResponse> {
+
+        val result = userApplicationService.getMyInfo(authentication)
+
+        return AnbdApiResponse.success(
+            traceId = traceIdResolver.getTraceId(),
+            body = result
+        )
+    }
+
     @Operation(
         summary = "현재 사용자 관심 나눔글 목록 조회",
         description = "현재 로그인한 사용자가 좋아요한 나눔글 목록(관심 목록)을 조회합니다."

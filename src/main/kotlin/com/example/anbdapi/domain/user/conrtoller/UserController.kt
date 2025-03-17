@@ -91,28 +91,6 @@ class UserController(
     }
 
     @Operation(
-        summary = "현재 사용자 정보 반환",
-        description = "현재 로그인한 사용자의 정보를 반환합니다."
-    )
-    @ApiResponses(
-        value = [
-            ApiResponse(responseCode = "200", description = "회원 정보 요청 성공"),
-            ApiResponse(responseCode = "400", description = "잘못된 요청"),
-            ApiResponse(responseCode = "401", description = "인증 실패")
-        ]
-    )
-    @GetMapping("/me")
-    fun me(authentication: Authentication): AnbdApiResponse<UserInformationResponse> {
-
-        val result = userApplicationService.getMyInfo(authentication)
-
-        return AnbdApiResponse.success(
-            traceId = traceIdResolver.getTraceId(),
-            body = result
-        )
-    }
-
-    @Operation(
         summary = "특정 사용자 정보 조회",
         description = "사용자 ID를 통해 특정 사용자의 전체 정보를 반환합니다."
     )
