@@ -47,6 +47,8 @@ class SharePostService(
         val post = sharePostRepository.findByIdOrNull(postId)
             ?: throw SharePostNotFoundException("Post not found")
 
+        post.hits += 1
+
         val likes = sharePostLikeRepository.findBySharePost(post)
 
         return SharePostResponse.from(post, currentUser.id, likes)

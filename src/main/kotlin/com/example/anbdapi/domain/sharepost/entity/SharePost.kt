@@ -46,6 +46,9 @@ class SharePost(
     @Column(name = "is_sold")
     var isSold: Boolean = false,
 
+    @Column(name = "hits")
+    var hits: Int = 0,
+
     @Column(name = "deleted_at")
     var deletedAt: LocalDateTime? = null
 ) : BaseEntity()
