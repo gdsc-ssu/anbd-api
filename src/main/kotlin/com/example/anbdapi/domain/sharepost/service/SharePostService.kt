@@ -8,16 +8,19 @@ import com.example.anbdapi.domain.sharepost.repository.SharePostLikeRepository
 import com.example.anbdapi.domain.sharepost.repository.SharePostRepository
 import com.example.anbdapi.domain.user.exception.UserNotFoundException
 import com.example.anbdapi.domain.user.repository.UserRepository
+import com.example.anbdapi.domain.user.service.UserApplicationService
 import com.example.anbdapi.support.enums.ShareCategory
 import com.example.anbdapi.support.enums.ShareType
 import jakarta.transaction.Transactional
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 
 @Service
 class SharePostService(
+    private val userApplicationService: UserApplicationService,
     private val sharePostRepository: SharePostRepository,
     private val sharePostLikeRepository: SharePostLikeRepository,
     private val userRepository: UserRepository
@@ -40,9 +43,8 @@ class SharePostService(
         return sharePostRepository.save(post)
     }
 
-    fun getPostById(email: String, postId: Long): SharePostResponse {
-        val currentUser = userRepository.findByEmail(email)
-            ?: throw UserNotFoundException("Current user not found")
+    fun getPostById(authentication: Authentication, postId: Long): SharePostResponse {
+        val currentUserId = userApplicationService.getCurrentUserId(authentication)
 
         val post = sharePostRepository.findByIdOrNull(postId)
             ?: throw SharePostNotFoundException("Post not found")
@@ -51,12 +53,11 @@ class SharePostService(
 
         val likes = sharePostLikeRepository.findBySharePost(post)
 
-        return SharePostResponse.from(post, currentUser.id, likes)
+        return SharePostResponse.from(post, currentUserId, likes)
     }
 
-    fun getPosts(email: String, keyword: String?, location: String?, category: ShareCategory?, type: ShareType?, pageable: Pageable): Page<SharePostResponse> {
-        val currentUser = userRepository.findByEmail(email)
-            ?: throw UserNotFoundException("Current user not found")
+    fun getPosts(authentication: Authentication, keyword: String?, location: String?, category: ShareCategory?, type: ShareType?, pageable: Pageable): Page<SharePostResponse> {
+        val currentUserId = userApplicationService.getCurrentUserId(authentication)
 
         val posts = sharePostRepository.findPosts(
             keyword = keyword,
@@ -72,13 +73,12 @@ class SharePostService(
 
         return posts.map { post ->
             val postLikes = allLikes.filter { it.sharePost.id == post.id }
-            SharePostResponse.from(post, currentUser.id, postLikes)
+            SharePostResponse.from(post, currentUserId, postLikes)
         }
     }
 
-    fun getUserPosts(email: String, userId: Long, pageable: Pageable): Page<SharePostResponse> {
-        val currentUser = userRepository.findByEmail(email)
-            ?: throw UserNotFoundException("Current user not found")
+    fun getUserPosts(authentication: Authentication, userId: Long, pageable: Pageable): Page<SharePostResponse> {
+        val currentUserId = userApplicationService.getCurrentUserId(authentication)
 
         val user = userRepository.findByIdOrNull(userId)
             ?: throw UserNotFoundException("User not found")
@@ -90,14 +90,13 @@ class SharePostService(
 
         return posts.map { post ->
             val postLikes = allLikes.filter { it.sharePost.id == post.id }
-            SharePostResponse.from(post, currentUser.id, postLikes)
+            SharePostResponse.from(post, currentUserId, postLikes)
         }
     }
 
     @Transactional
-    fun updatePost(email: String, postId: Long, request: SharePostRequest): SharePostResponse {
-        val currentUser = userRepository.findByEmail(email)
-            ?: throw UserNotFoundException("Current user not found")
+    fun updatePost(authentication: Authentication, postId: Long, request: SharePostRequest): SharePostResponse {
+        val currentUserId = userApplicationService.getCurrentUserId(authentication)
 
         val post = sharePostRepository.findByIdOrNull(postId)
             ?: throw SharePostNotFoundException("Post not found")
@@ -111,7 +110,7 @@ class SharePostService(
         post.type = request.type
         post.description = request.description
 
-        return SharePostResponse.from(post, currentUser.id, likes)
+        return SharePostResponse.from(post, currentUserId, likes)
     }
 
     @Transactional

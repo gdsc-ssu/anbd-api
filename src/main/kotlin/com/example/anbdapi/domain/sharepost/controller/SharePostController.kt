@@ -15,8 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.security.oauth2.core.user.OAuth2User
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -62,13 +61,10 @@ class SharePostController(
     )
     @GetMapping("/{postId}")
     fun getPost(
-        @AuthenticationPrincipal oAuth2User: OAuth2User,
+        authentication: Authentication,
         @PathVariable postId: Long
     ): AnbdApiResponse<SharePostResponse> {
-        val email = oAuth2User.attributes["email"] as? String
-            ?: throw IllegalArgumentException("Email not found in authentication data")
-
-        val post = sharePostService.getPostById(email, postId)
+        val post = sharePostService.getPostById(authentication, postId)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -88,17 +84,14 @@ class SharePostController(
     )
     @GetMapping
     fun getPosts(
-        @AuthenticationPrincipal oAuth2User: OAuth2User,
+        authentication: Authentication,
         @RequestParam(required = false) keyword: String?,
         @RequestParam(required = false) location: String?,
         @RequestParam(required = false) category: ShareCategory?,
         @RequestParam(required = false) type: ShareType?,
         pageable: Pageable
     ): AnbdApiResponse<Page<SharePostResponse>> {
-        val email = oAuth2User.attributes["email"] as? String
-            ?: throw IllegalArgumentException("Email not found in authentication data")
-
-        val posts = sharePostService.getPosts(email, keyword, location, category, type, pageable)
+        val posts = sharePostService.getPosts(authentication, keyword, location, category, type, pageable)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -118,14 +111,11 @@ class SharePostController(
     )
     @GetMapping("/user/{userId}")
     fun getUserPosts(
-        @AuthenticationPrincipal oAuth2User: OAuth2User,
+        authentication: Authentication,
         @PathVariable userId: Long,
         pageable: Pageable
     ): AnbdApiResponse<Page<SharePostResponse>> {
-        val email = oAuth2User.attributes["email"] as? String
-            ?: throw IllegalArgumentException("Email not found in authentication data")
-
-        val posts = sharePostService.getUserPosts(email, userId, pageable)
+        val posts = sharePostService.getUserPosts(authentication, userId, pageable)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -145,14 +135,11 @@ class SharePostController(
     )
     @PutMapping("/{postId}")
     fun updatePost(
-        @AuthenticationPrincipal oAuth2User: OAuth2User,
+        authentication: Authentication,
         @PathVariable postId: Long,
         @RequestBody request: SharePostRequest
     ): AnbdApiResponse<SharePostResponse> {
-        val email = oAuth2User.attributes["email"] as? String
-            ?: throw IllegalArgumentException("Email not found in authentication data")
-
-        val updatedPost = sharePostService.updatePost(email, postId, request)
+        val updatedPost = sharePostService.updatePost(authentication, postId, request)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -192,13 +179,10 @@ class SharePostController(
     )
     @PostMapping("/like")
     fun addLike(
-        @AuthenticationPrincipal oAuth2User: OAuth2User,
+        authentication: Authentication,
         @RequestParam postId: Long
     ): AnbdApiResponse<SharePostLikeResponse> {
-        val email = oAuth2User.attributes["email"] as? String
-            ?: throw IllegalArgumentException("Email not found in authentication data")
-
-        val like = sharePostLikeService.addLike(email, postId)
+        val like = sharePostLikeService.addLike(authentication, postId)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -218,13 +202,10 @@ class SharePostController(
     )
     @DeleteMapping("/like")
     fun removeLike(
-        @AuthenticationPrincipal oAuth2User: OAuth2User,
+        authentication: Authentication,
         @RequestParam postId: Long
     ): AnbdApiResponse<String> {
-        val email = oAuth2User.attributes["email"] as? String
-            ?: throw IllegalArgumentException("Email not found in authentication data")
-
-        sharePostLikeService.removeLike(email, postId)
+        sharePostLikeService.removeLike(authentication, postId)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
