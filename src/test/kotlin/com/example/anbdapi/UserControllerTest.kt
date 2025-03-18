@@ -24,25 +24,25 @@ class UserControllerTest(
 ) {
 
     // 실제 소셜 로그인 후 토큰을 넣으세요.
-    private val ACCESS_TOKEN = "{ACCESS_TOKEN}}"
+    private val ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQxNTg4NTQ2LCJleHAiOjE3NDE1OTIxNDYsImp0aSI6IjhiZTQwNmIxLTcwMTctNDI2OS1iYTc4LTBhNTQwNTU1Y2YzOCJ9.MVgUILBTHhnd8SV8zVBLhc9feci1D2iJMvUaL1ngvGc"
 
     @Test
     @Order(1)
-    @DisplayName("GET /api/v1/users/me - 현재 사용자 정보 조회")
+    @DisplayName("GET /v1/users/me - 현재 사용자 정보 조회")
     fun getUserInfoTest() {
-        mockMvc.get("/api/v1/users/me") {
+        mockMvc.get("/v1/users/me") {
             header("Authorization", "Bearer $ACCESS_TOKEN")
         }
             .andExpect {
                 status { isOk() }
-                jsonPath("$.body.email") { value("{YOUR_EMAIL}}") }
+                jsonPath("$.body.email") { value("tnwoql327@gmail.com") }
             }
             .andDo { print() }
     }
 
     @Test
     @Order(2)
-    @DisplayName("PUT /api/v1/users/profiles - 프로필 업데이트 테스트")
+    @DisplayName("PUT /v1/users/profiles - 프로필 업데이트 테스트")
     fun updateProfileTest() {
         val requestBody = mapOf(
             "gender" to "MALE",
@@ -54,7 +54,7 @@ class UserControllerTest(
         val json = objectMapper.writeValueAsString(requestBody)
 
         // 1. 프로필 업데이트
-        mockMvc.put("/api/v1/users/profiles") {
+        mockMvc.put("/v1/users/profiles") {
             header("Authorization", "Bearer $ACCESS_TOKEN")
             contentType = MediaType.APPLICATION_JSON
             content = json
@@ -65,7 +65,7 @@ class UserControllerTest(
             .andDo { print() }
 
         // 2. 프로필 업데이트 이후 사용자 정보를 조회하여 입력한 데이터와 비교
-        mockMvc.get("/api/v1/users/me") {
+        mockMvc.get("/v1/users/me") {
             header("Authorization", "Bearer $ACCESS_TOKEN")
         }
             .andExpect {
@@ -82,9 +82,9 @@ class UserControllerTest(
 
     @Test
     @Order(3)
-    @DisplayName("POST /api/v1/users/logout - 로그아웃 테스트")
+    @DisplayName("POST /v1/users/logout - 로그아웃 테스트")
     fun logoutTest() {
-        mockMvc.post("/api/v1/users/logout") {
+        mockMvc.post("/v1/users/logout") {
             header("Authorization", "Bearer $ACCESS_TOKEN")
         }
             .andExpect {
@@ -98,10 +98,10 @@ class UserControllerTest(
 
     @Test
     @Order(4)
-    @DisplayName("PATCH /api/v1/users/withdraw - 회원 탈퇴 테스트")
+    @DisplayName("PATCH /v1/users/withdraw - 회원 탈퇴 테스트")
     fun withdrawUserTest() {
         // 1. 회원 탈퇴 요청
-        mockMvc.patch("/api/v1/users/withdraw") {
+        mockMvc.patch("/v1/users/withdraw") {
             header("Authorization", "Bearer $ACCESS_TOKEN")
         }
             .andExpect {
@@ -110,7 +110,7 @@ class UserControllerTest(
             .andDo { print() }
 
         // 2. 탈퇴한 후 다시 사용자 정보 요청 (User Not Found 기대)
-        mockMvc.get("/api/v1/users/me") {
+        mockMvc.get("/v1/users/me") {
             header("Authorization", "Bearer $ACCESS_TOKEN")
         }
             .andExpect {

@@ -1,5 +1,8 @@
 package com.example.anbdapi.support.exception
 
+import com.example.anbdapi.domain.user.exception.UserProfileImageNicknameException
+import com.example.anbdapi.domain.user.exception.UserImageDeleteException
+import com.example.anbdapi.domain.user.exception.UserImageUploadException
 import com.example.anbdapi.domain.user.exception.UserNotFoundException
 import com.example.anbdapi.support.logging.TraceIdResolver
 import com.example.anbdapi.support.response.AnbdApiResponse
@@ -29,6 +32,54 @@ class UserExceptionHandler(
             traceId = traceIdResolver.getTraceId(),
             status = HttpStatus.NOT_FOUND,
             code = UserResponseCode.USER_01,
+            body = body
+        )
+    }
+
+    @ExceptionHandler(UserImageUploadException::class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    fun handleUserImageUploadException(ex: UserImageUploadException): AnbdApiResponse<ErrorResponse> {
+        log.error("UserImageUploadException 발생: {}", ex.message, ex)
+
+        val message = ex.message ?: "이미지 업로드 과정에서 오류가 발생했습니다"
+        val body = ErrorResponse(message)
+
+        return AnbdApiResponse.of(
+            traceId = traceIdResolver.getTraceId(),
+            status = HttpStatus.INTERNAL_SERVER_ERROR,
+            code = UserResponseCode.USER_02,
+            body = body
+        )
+    }
+
+    @ExceptionHandler(UserImageDeleteException::class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    fun handleUserImageDeleteException(ex: UserImageDeleteException): AnbdApiResponse<ErrorResponse> {
+        log.error("UserImageDeleteException 발생: {}", ex.message, ex)
+
+        val message = ex.message ?: "이미지 삭제 과정에서 오류가 발생했습니다"
+        val body = ErrorResponse(message)
+
+        return AnbdApiResponse.of(
+            traceId = traceIdResolver.getTraceId(),
+            status = HttpStatus.INTERNAL_SERVER_ERROR,
+            code = UserResponseCode.USER_03,
+            body = body
+        )
+    }
+
+    @ExceptionHandler(UserProfileImageNicknameException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleUserProfileImageNicknameException(ex: UserProfileImageNicknameException): AnbdApiResponse<ErrorResponse> {
+        log.error("UserProfileImageNicknameException 발생: {}", ex.message, ex)
+
+        val message = ex.message ?: "프로필 이미지 또는 닉네임 업데이트 과정에서 오류가 발생했습니다"
+        val body = ErrorResponse(message)
+
+        return AnbdApiResponse.of(
+            traceId = traceIdResolver.getTraceId(),
+            status = HttpStatus.BAD_REQUEST,
+            code = UserResponseCode.USER_04,
             body = body
         )
     }
