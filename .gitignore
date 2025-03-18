@@ -4,6 +4,8 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+Dockerfile
+agile-ratio-452713-s4-fadc15b042e3.json
 
 ### STS ###
 .apt_generated
