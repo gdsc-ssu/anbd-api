@@ -6,9 +6,6 @@ import com.example.anbdapi.domain.user.dto.request.ProfileUpdateRequest
 import com.example.anbdapi.domain.user.dto.response.UserInformationResponse
 import com.example.anbdapi.domain.user.dto.response.UserProfileResponse
 import com.example.anbdapi.domain.user.entity.User
-import com.example.anbdapi.domain.user.service.UserImageService
-import com.example.anbdapi.domain.user.service.UserContentService
-import com.example.anbdapi.domain.user.service.UserService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.security.core.Authentication
@@ -73,7 +70,7 @@ class UserApplicationService(
 
         var imageUrl: String? = null
         if (request.profileImage != null && !request.profileImage.isEmpty) {
-            imageUrl = userImageService.uploadImage(user.id!!, request.profileImage)
+            imageUrl = userImageService.uploadUserImage(user.id!!, request.profileImage)
         }
 
         userService.updateProfileImageAndNickname(user.id!!, request.nickname, imageUrl)

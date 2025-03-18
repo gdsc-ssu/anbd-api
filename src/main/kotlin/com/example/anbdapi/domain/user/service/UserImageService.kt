@@ -1,5 +1,6 @@
 package com.example.anbdapi.domain.user.service
 
+import com.example.anbdapi.domain.user.entity.User
 import com.example.anbdapi.domain.user.exception.UserImageDeleteException
 import com.example.anbdapi.domain.user.exception.UserImageUploadException
 import com.example.anbdapi.domain.user.exception.UserNotFoundException
@@ -21,13 +22,32 @@ class UserImageService (
 ) {
 
     @Transactional
-    fun uploadImage(userId: Long, file: MultipartFile): String {
+    fun uploadUserImage(userId: Long, file: MultipartFile): String {
         val user = userRepository.findById(userId).orElse(null)
             ?: throw UserNotFoundException("User not found")
 
         validateImage(file)
 
         val imageUrl = uploadToStorage(file)
+
+        user.profileImage?.let {
+            if (it.contains("storage.googleapis.com")) {
+                deleteImage(it)
+            }
+        }
+
+        user.profileImage = imageUrl
+        userRepository.save(user)
+
+        return imageUrl
+    }
+
+    @Transactional
+    fun uploadSharePostImage(user: User, file: MultipartFile): String {
+        validateImage(file)
+
+        // TODO: share-post-images/{postId}로 변경
+        val imageUrl = uploadToStorage(file, "share-post-images")
 
         user.profileImage?.let {
             if (it.contains("storage.googleapis.com")) {

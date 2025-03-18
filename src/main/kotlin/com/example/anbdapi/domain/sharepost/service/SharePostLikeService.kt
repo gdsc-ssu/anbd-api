@@ -6,33 +6,34 @@ import com.example.anbdapi.domain.sharepost.exception.SharePostLikeBadRequestExc
 import com.example.anbdapi.domain.sharepost.exception.SharePostNotFoundException
 import com.example.anbdapi.domain.sharepost.repository.SharePostLikeRepository
 import com.example.anbdapi.domain.sharepost.repository.SharePostRepository
-import com.example.anbdapi.domain.user.exception.UserNotFoundException
 import com.example.anbdapi.domain.user.repository.UserRepository
+import com.example.anbdapi.domain.user.service.UserApplicationService
 import jakarta.transaction.Transactional
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 
 @Service
 class SharePostLikeService(
     private val sharePostLikeRepository: SharePostLikeRepository,
     private val sharePostRepository: SharePostRepository,
+    private val userApplicationService: UserApplicationService,
     private val userRepository: UserRepository
 ) {
 
     @Transactional
-    fun addLike(email: String, postId: Long): SharePostLikeResponse {
-        val user = userRepository.findByEmail(email)
-            ?: throw UserNotFoundException("User not found")
+    fun addLike(authentication: Authentication, postId: Long): SharePostLikeResponse {
+        val currentUser = userApplicationService.getCurrentUser(authentication)
 
         val post = sharePostRepository.findByIdOrNull(postId)
             ?: throw SharePostNotFoundException("Post not found")
 
-        if (sharePostLikeRepository.existsByUserAndSharePost(user, post)) {
+        if (sharePostLikeRepository.existsByUserAndSharePost(currentUser, post)) {
             throw SharePostLikeBadRequestException("You have already liked this post")
         }
 
         val like = SharePostLike(
-            user = user,
+            user = currentUser,
             sharePost = post
         )
 
@@ -42,14 +43,13 @@ class SharePostLikeService(
     }
 
     @Transactional
-    fun removeLike(email: String, postId: Long) {
-        val user = userRepository.findByEmail(email)
-            ?: throw UserNotFoundException("User not found")
+    fun removeLike(authentication: Authentication, postId: Long) {
+        val currentUser = userApplicationService.getCurrentUser(authentication)
 
         val post = sharePostRepository.findByIdOrNull(postId)
             ?: throw SharePostNotFoundException("Post not found")
 
-        val like = sharePostLikeRepository.findByUserAndSharePost(user, post)
+        val like = sharePostLikeRepository.findByUserAndSharePost(currentUser, post)
             ?: throw SharePostLikeBadRequestException("You have not liked this post")
 
         sharePostLikeRepository.delete(like)

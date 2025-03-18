@@ -5,6 +5,8 @@ import com.example.anbdapi.domain.sharepost.controller.response.SharePostLikeRes
 import com.example.anbdapi.domain.sharepost.controller.response.SharePostResponse
 import com.example.anbdapi.domain.sharepost.service.SharePostLikeService
 import com.example.anbdapi.domain.sharepost.service.SharePostService
+import com.example.anbdapi.support.enums.ShareCategory
+import com.example.anbdapi.support.enums.ShareType
 import com.example.anbdapi.support.logging.TraceIdResolver
 import com.example.anbdapi.support.response.AnbdApiResponse
 import io.swagger.v3.oas.annotations.Operation
@@ -13,9 +15,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.security.oauth2.core.user.OAuth2User
+import org.springframework.http.MediaType
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @Tag(name = "📮 SharePost API", description = "나눔글 관련 API (생성, 조회, 수정, 삭제)")
@@ -35,12 +38,19 @@ class SharePostController(
             ApiResponse(responseCode = "400", description = "잘못된 요청")
         ]
     )
-    @PostMapping
+    @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun createPost(
-        @RequestParam userId: Long,
-        @RequestBody request: SharePostRequest
+        authentication: Authentication,
+        @RequestPart title: String,
+        @RequestParam category: ShareCategory,
+        @RequestParam content: String,
+        @RequestPart images: List<MultipartFile>,
+        @RequestParam type: ShareType,
+        @RequestParam description: String?
     ): AnbdApiResponse<SharePostResponse> {
-        val post = sharePostService.createPost(userId, request)
+        val request = SharePostRequest.from(title, category, content, images, type, description)
+
+        val post = sharePostService.createPost(authentication, request)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -60,17 +70,41 @@ class SharePostController(
     )
     @GetMapping("/{postId}")
     fun getPost(
-        @AuthenticationPrincipal oAuth2User: OAuth2User,
+        authentication: Authentication,
         @PathVariable postId: Long
     ): AnbdApiResponse<SharePostResponse> {
-        val email = oAuth2User.attributes["email"] as? String
-            ?: throw IllegalArgumentException("Email not found in authentication data")
-
-        val post = sharePostService.getPostById(email, postId)
+        val post = sharePostService.getPostById(authentication, postId)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
             body = post
+        )
+    }
+
+    @Operation(
+        summary = "나눔글 전체 조회",
+        description = "나눔글을 전체 조회합니다. 키워드, 카테고리 등을 설정할 수 있습니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "나눔글 조회 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청")
+        ]
+    )
+    @GetMapping
+    fun getPosts(
+        authentication: Authentication,
+        @RequestParam(required = false) keyword: String?,
+        @RequestParam(required = false) location: String?,
+        @RequestParam(required = false) category: ShareCategory?,
+        @RequestParam(required = false) type: ShareType?,
+        pageable: Pageable
+    ): AnbdApiResponse<Page<SharePostResponse>> {
+        val posts = sharePostService.getPosts(authentication, keyword, location, category, type, pageable)
+
+        return AnbdApiResponse.success(
+            traceId = traceIdResolver.getTraceId(),
+            body = posts
         )
     }
 
@@ -86,14 +120,11 @@ class SharePostController(
     )
     @GetMapping("/user/{userId}")
     fun getUserPosts(
-        @AuthenticationPrincipal oAuth2User: OAuth2User,
+        authentication: Authentication,
         @PathVariable userId: Long,
         pageable: Pageable
     ): AnbdApiResponse<Page<SharePostResponse>> {
-        val email = oAuth2User.attributes["email"] as? String
-            ?: throw IllegalArgumentException("Email not found in authentication data")
-
-        val posts = sharePostService.getUserPosts(email, userId, pageable)
+        val posts = sharePostService.getUserPosts(authentication, userId, pageable)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -113,14 +144,18 @@ class SharePostController(
     )
     @PutMapping("/{postId}")
     fun updatePost(
-        @AuthenticationPrincipal oAuth2User: OAuth2User,
+        authentication: Authentication,
         @PathVariable postId: Long,
-        @RequestBody request: SharePostRequest
+        @RequestParam title: String,
+        @RequestParam category: ShareCategory,
+        @RequestParam content: String,
+        @RequestPart images: List<MultipartFile>,
+        @RequestParam type: ShareType,
+        @RequestParam description: String?
     ): AnbdApiResponse<SharePostResponse> {
-        val email = oAuth2User.attributes["email"] as? String
-            ?: throw IllegalArgumentException("Email not found in authentication data")
+        val request = SharePostRequest(title, category, content, images, type, description)
 
-        val updatedPost = sharePostService.updatePost(email, postId, request)
+        val updatedPost = sharePostService.updatePost(authentication, postId, request)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -160,13 +195,10 @@ class SharePostController(
     )
     @PostMapping("/like")
     fun addLike(
-        @AuthenticationPrincipal oAuth2User: OAuth2User,
+        authentication: Authentication,
         @RequestParam postId: Long
     ): AnbdApiResponse<SharePostLikeResponse> {
-        val email = oAuth2User.attributes["email"] as? String
-            ?: throw IllegalArgumentException("Email not found in authentication data")
-
-        val like = sharePostLikeService.addLike(email, postId)
+        val like = sharePostLikeService.addLike(authentication, postId)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -186,13 +218,10 @@ class SharePostController(
     )
     @DeleteMapping("/like")
     fun removeLike(
-        @AuthenticationPrincipal oAuth2User: OAuth2User,
+        authentication: Authentication,
         @RequestParam postId: Long
     ): AnbdApiResponse<String> {
-        val email = oAuth2User.attributes["email"] as? String
-            ?: throw IllegalArgumentException("Email not found in authentication data")
-
-        sharePostLikeService.removeLike(email, postId)
+        sharePostLikeService.removeLike(authentication, postId)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
