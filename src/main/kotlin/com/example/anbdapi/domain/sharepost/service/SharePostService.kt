@@ -43,7 +43,7 @@ class SharePostService(
             content = request.content,
             imageUrls = imageUrls,
             type = request.type,
-            location = currentUser.neighborhood!!,    // TODO: 사용자가 인증한 동네로 변경
+            neighborhood = currentUser.neighborhood!!,    // TODO: 사용자가 인증한 동네로 변경
             description = request.description
         )
 

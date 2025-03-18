@@ -27,15 +27,17 @@ interface SharePostRepository : JpaRepository<SharePost, Long> {
     fun findByUser(user: User, pageable: Pageable): Page<SharePost>
 
     // TODO: QueryDSL로 리팩토링
-    @Query("""
+    @Query(
+        """
         SELECT sp FROM SharePost sp 
         WHERE sp.isSold = false
         AND (sp.deletedAt IS NULL)
         AND (:keyword IS NULL OR sp.title LIKE %:keyword% OR sp.content LIKE %:keyword%)
-        AND (sp.location = :location)
+        AND (sp.neighborhood = :location)
         AND (:category IS NULL OR sp.category = :category)
         AND sp.type = :type
-    """)
+    """
+    )
     fun findPosts(
         @Param("keyword") keyword: String?,
         @Param("location") location: String,
