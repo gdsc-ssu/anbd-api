@@ -71,8 +71,8 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
-      - name: Create GCP Credentials File
-        run: echo "${{ secrets.GCS_CREDENTIALS }}" > src/main/resources/agile-ratio-452713-s4-fadc15b042e3.json
+      - name: Decode and save GCS credentials
+        run: echo "${{ secrets.GCS_CREDENTIALS }}" | base64 --decode > src/main/resources/agile-ratio-452713-s4-fadc15b042e3.json
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
