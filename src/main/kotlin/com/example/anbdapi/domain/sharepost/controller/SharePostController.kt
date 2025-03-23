@@ -41,7 +41,7 @@ class SharePostController(
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun createPost(
         authentication: Authentication,
-        @RequestPart title: String,
+        @RequestParam title: String,
         @RequestParam category: ShareCategory,
         @RequestParam content: String,
         @RequestPart images: List<MultipartFile>,
