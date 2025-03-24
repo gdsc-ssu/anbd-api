@@ -42,7 +42,6 @@ class SharePostController(
     fun createPost(
         authentication: Authentication,
         @RequestParam title: String,
-        @RequestParam category: ShareCategory,
         @RequestParam content: String,
         @RequestPart images: List<MultipartFile>,
         @RequestParam type: ShareType
