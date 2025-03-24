@@ -5,6 +5,7 @@ import com.example.anbdapi.domain.sharepost.controller.response.SharePostRespons
 import com.example.anbdapi.domain.sharepost.entity.SharePost
 import com.example.anbdapi.domain.sharepost.exception.SharePostNotFoundException
 import com.example.anbdapi.domain.sharepost.repository.SharePostLikeRepository
+import com.example.anbdapi.domain.sharepost.repository.SharePostQuerydslRepository
 import com.example.anbdapi.domain.sharepost.repository.SharePostRepository
 import com.example.anbdapi.domain.user.exception.UserNotFoundException
 import com.example.anbdapi.domain.user.repository.UserRepository
@@ -24,6 +25,7 @@ class SharePostService(
     private val userApplicationService: UserApplicationService,
     private val userImageService: UserImageService,
     private val sharePostRepository: SharePostRepository,
+    private val sharePostQuerydslRepository: SharePostQuerydslRepository,
     private val sharePostLikeRepository: SharePostLikeRepository,
     private val userRepository: UserRepository,
     private val sharePostDescriptionGenerator: SharePostDescriptionGenerator,
@@ -54,7 +56,7 @@ class SharePostService(
             content = request.content,
             imageUrls = imageUrls,
             type = request.type,
-            location = currentUser.neighborhood!!,    // TODO: 사용자가 인증한 동네로 변경
+            neighborhood = currentUser.neighborhood!!,    // TODO: 사용자가 인증한 동네로 변경
             description = description
         )
 
@@ -77,7 +79,7 @@ class SharePostService(
     fun getPosts(authentication: Authentication, keyword: String?, location: String?, category: ShareCategory?, type: ShareType?, pageable: Pageable): Page<SharePostResponse> {
         val currentUser = userApplicationService.getCurrentUser(authentication)
 
-        val posts = sharePostRepository.findPosts(
+        val posts = sharePostQuerydslRepository.findPosts(
             keyword = keyword,
             location = location ?: currentUser.neighborhood!!,    // TODO: 사용자가 인증한 동네로 변경
             category = category,

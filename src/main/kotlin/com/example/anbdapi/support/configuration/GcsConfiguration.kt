@@ -1,4 +1,4 @@
-package com.example.anbdapi.support.config
+package com.example.anbdapi.support.configuration
 
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.storage.Storage
