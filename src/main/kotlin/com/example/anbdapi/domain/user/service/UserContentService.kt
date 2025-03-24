@@ -3,6 +3,7 @@ package com.example.anbdapi.domain.user.service
 import com.example.anbdapi.domain.sharepost.controller.response.SharePostResponse
 import com.example.anbdapi.domain.sharepost.repository.SharePostLikeRepository
 import com.example.anbdapi.domain.sharepost.repository.SharePostRepository
+import com.example.anbdapi.domain.user.entity.User
 import com.example.anbdapi.domain.user.exception.UserNotFoundException
 import com.example.anbdapi.domain.user.repository.UserRepository
 import org.springframework.data.domain.Page
@@ -54,6 +55,14 @@ class UserContentService(
         return sharedPosts.map { post ->
             val postLikes = allLikes.filter { it.sharePost.id == post.id }
             SharePostResponse.from(post, userId, postLikes)
+        }
+    }
+
+    fun updateNeighborhood(currentUser: User, newNeighborhood: String) {
+
+        if (currentUser.neighborhood != newNeighborhood) {
+            currentUser.neighborhood = newNeighborhood
+            userRepository.save(currentUser)
         }
     }
 }

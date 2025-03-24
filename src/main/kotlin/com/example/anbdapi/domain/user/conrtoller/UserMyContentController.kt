@@ -1,6 +1,7 @@
 package com.example.anbdapi.domain.user.conrtoller
 
 import com.example.anbdapi.domain.sharepost.controller.response.SharePostResponse
+import com.example.anbdapi.domain.user.dto.request.NeighborhoodUpdateRequest
 import com.example.anbdapi.domain.user.dto.request.ProfileImageNicknameRequest
 import com.example.anbdapi.domain.user.dto.response.UserInformationResponse
 import com.example.anbdapi.domain.user.dto.response.UserProfileResponse
@@ -149,6 +150,30 @@ class UserMyContentController(
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
             body = sharedPosts
+        )
+    }
+
+    @Operation(
+        summary = "현재 사용자 동네 정보 업데이트",
+        description = "현재 로그인한 사용자의 동네 정보를 업데이트합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "동네 정보 업데이트 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            ApiResponse(responseCode = "401", description = "인증 실패")
+        ]
+    )
+    @PatchMapping("/neighborhood")
+    fun updateNeighborhood(
+        authentication: Authentication,
+        @RequestBody request: NeighborhoodUpdateRequest
+    ): AnbdApiResponse<String> {
+        val result = userApplicationService.updateNeighborhood(authentication, request)
+
+        return AnbdApiResponse.success(
+            traceId = traceIdResolver.getTraceId(),
+            body = result
         )
     }
 }

@@ -1,6 +1,7 @@
 package com.example.anbdapi.domain.user.service
 
 import com.example.anbdapi.domain.sharepost.controller.response.SharePostResponse
+import com.example.anbdapi.domain.user.dto.request.NeighborhoodUpdateRequest
 import com.example.anbdapi.domain.user.dto.request.ProfileImageNicknameRequest
 import com.example.anbdapi.domain.user.dto.request.ProfileUpdateRequest
 import com.example.anbdapi.domain.user.dto.response.UserInformationResponse
@@ -93,5 +94,14 @@ class UserApplicationService(
     // 특정 사용자 프로필 정보(ID, 닉네임, 이미지, 신뢰도) 조회
     fun getUserProfile(userId: Long): UserProfileResponse {
         return userService.getUserProfile(userId)
+    }
+
+    // 특정 사용자 동네 정보 업데이트
+    fun updateNeighborhood(authentication: Authentication, request: NeighborhoodUpdateRequest): String {
+        val currentUser = getCurrentUser(authentication)
+
+        userContentService.updateNeighborhood(currentUser, request.neighborhood)
+
+        return "Neighborhood updated successfully"
     }
 }
