@@ -42,13 +42,11 @@ class SharePostController(
     fun createPost(
         authentication: Authentication,
         @RequestPart title: String,
-        @RequestParam category: ShareCategory,
         @RequestParam content: String,
         @RequestPart images: List<MultipartFile>,
-        @RequestParam type: ShareType,
-        @RequestParam description: String?
+        @RequestParam type: ShareType
     ): AnbdApiResponse<SharePostResponse> {
-        val request = SharePostRequest.from(title, category, content, images, type, description)
+        val request = SharePostRequest.from(title, content, images, type)
 
         val post = sharePostService.createPost(authentication, request)
 
@@ -142,18 +140,16 @@ class SharePostController(
             ApiResponse(responseCode = "400", description = "잘못된 요청")
         ]
     )
-    @PutMapping("/{postId}")
+    @PutMapping("/{postId}", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun updatePost(
         authentication: Authentication,
         @PathVariable postId: Long,
         @RequestParam title: String,
-        @RequestParam category: ShareCategory,
         @RequestParam content: String,
         @RequestPart images: List<MultipartFile>,
-        @RequestParam type: ShareType,
-        @RequestParam description: String?
+        @RequestParam type: ShareType
     ): AnbdApiResponse<SharePostResponse> {
-        val request = SharePostRequest(title, category, content, images, type, description)
+        val request = SharePostRequest(title, content, images, type)
 
         val updatedPost = sharePostService.updatePost(authentication, postId, request)
 

@@ -6,28 +6,22 @@ import org.springframework.web.multipart.MultipartFile
 
 data class SharePostRequest(
     val title: String,
-    val category: ShareCategory,
     val content: String,
     val images: List<MultipartFile>,
-    val type: ShareType,
-    val description: String?
+    val type: ShareType
 ) {
     companion object {
         fun from(
             title: String,
-            category: ShareCategory,
             content: String,
             images: List<MultipartFile>,
-            type: ShareType,
-            description: String?
+            type: ShareType
         ): SharePostRequest {
             return SharePostRequest(
                 title = title,
-                category = category,
                 content = content,
                 images = images,
-                type = type,
-                description = description
+                type = type
             )
         }
     }

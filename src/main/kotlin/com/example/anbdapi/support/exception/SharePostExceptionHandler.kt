@@ -1,5 +1,6 @@
 package com.example.anbdapi.support.exception
 
+import com.example.anbdapi.domain.sharepost.exception.SharePostGeminiException
 import com.example.anbdapi.domain.sharepost.exception.SharePostLikeBadRequestException
 import com.example.anbdapi.domain.sharepost.exception.SharePostNotFoundException
 import com.example.anbdapi.support.logging.TraceIdResolver
@@ -47,6 +48,22 @@ class SharePostExceptionHandler(
             traceId = traceIdResolver.getTraceId(),
             status = HttpStatus.BAD_REQUEST,
             code = SharePostResponseCode.SHAREPOST_02,
+            body = body
+        )
+    }
+
+    @ExceptionHandler(SharePostGeminiException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleSharePostGeminiException(ex: SharePostGeminiException): AnbdApiResponse<ErrorResponse> {
+        log.error("SharePostGemini 오류 발생: {}", ex.message, ex)
+
+        val message = ex.message ?: "나눔글 설명 생성 중 오류가 발생했습니다."
+        val body = ErrorResponse(message)
+
+        return AnbdApiResponse.of(
+            traceId = traceIdResolver.getTraceId(),
+            status = HttpStatus.BAD_REQUEST,
+            code = SharePostResponseCode.SHAREPOST_03,
             body = body
         )
     }
