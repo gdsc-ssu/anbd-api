@@ -23,6 +23,7 @@ class SharePostQuerydslRepository(
         location: String,
         category: ShareCategory?,
         type: ShareType?,
+        isSold: Boolean?,
         pageable: Pageable
     ): Page<SharePost> {
         val query = JPAQueryFactory(entityManager)
@@ -45,6 +46,10 @@ class SharePostQuerydslRepository(
 
         if (type != null) {
             whereClause.and(sharePost.type.eq(type))
+        }
+
+        if (isSold != null) {
+            whereClause.and(sharePost.isSold.eq(isSold))
         }
 
         val count = query

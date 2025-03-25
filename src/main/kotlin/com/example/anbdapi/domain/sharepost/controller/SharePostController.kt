@@ -1,8 +1,11 @@
 package com.example.anbdapi.domain.sharepost.controller
 
+import com.example.anbdapi.domain.sharepost.controller.request.BiddingRequest
 import com.example.anbdapi.domain.sharepost.controller.request.SharePostRequest
+import com.example.anbdapi.domain.sharepost.controller.response.BiddingResponse
 import com.example.anbdapi.domain.sharepost.controller.response.SharePostLikeResponse
 import com.example.anbdapi.domain.sharepost.controller.response.SharePostResponse
+import com.example.anbdapi.domain.sharepost.service.BiddingService
 import com.example.anbdapi.domain.sharepost.service.SharePostLikeService
 import com.example.anbdapi.domain.sharepost.service.SharePostService
 import com.example.anbdapi.support.enums.ShareCategory
@@ -21,12 +24,13 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
 @RestController
-@Tag(name = "📮 SharePost API", description = "나눔글 관련 API (생성, 조회, 수정, 삭제)")
+@Tag(name = "📮 SharePost API", description = "나눔글 관련 API (CRUD, 좋아요, 입찰 등)")
 @RequestMapping("/v1/share-posts")
 class SharePostController(
     private val traceIdResolver: TraceIdResolver,
     private val sharePostService: SharePostService,
-    private val sharePostLikeService: SharePostLikeService
+    private val sharePostLikeService: SharePostLikeService,
+    private val biddingService: BiddingService,
 ) {
     @Operation(
         summary = "나눔글 생성",
@@ -96,9 +100,10 @@ class SharePostController(
         @RequestParam(required = false) location: String?,
         @RequestParam(required = false) category: ShareCategory?,
         @RequestParam(required = false) type: ShareType?,
+        @RequestParam(required = false) isSold: Boolean?,
         pageable: Pageable
     ): AnbdApiResponse<Page<SharePostResponse>> {
-        val posts = sharePostService.getPosts(authentication, keyword, location, category, type, pageable)
+        val posts = sharePostService.getPosts(authentication, keyword, location, category, type, isSold, pageable)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -189,10 +194,10 @@ class SharePostController(
             ApiResponse(responseCode = "400", description = "잘못된 요청")
         ]
     )
-    @PostMapping("/like")
+    @PostMapping("/{postId}/like")
     fun addLike(
         authentication: Authentication,
-        @RequestParam postId: Long
+        @PathVariable postId: Long
     ): AnbdApiResponse<SharePostLikeResponse> {
         val like = sharePostLikeService.addLike(authentication, postId)
 
@@ -212,10 +217,10 @@ class SharePostController(
             ApiResponse(responseCode = "400", description = "잘못된 요청")
         ]
     )
-    @DeleteMapping("/like")
+    @DeleteMapping("/{postId}/like")
     fun removeLike(
         authentication: Authentication,
-        @RequestParam postId: Long
+        @PathVariable postId: Long
     ): AnbdApiResponse<String> {
         sharePostLikeService.removeLike(authentication, postId)
 
@@ -224,4 +229,145 @@ class SharePostController(
             body = AnbdApiResponse.SUCCESS
         )
     }
+
+    @Operation(
+        summary = "공유 글 입찰하기",
+        description = "공유 글 입찰하기."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "공유 글 입찰하기 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청")
+        ]
+    )
+    @PostMapping("/{postId}/bid")
+    fun bidPost(
+        authentication: Authentication,
+        @PathVariable postId: Long,
+        @RequestBody request: BiddingRequest
+    ): AnbdApiResponse<BiddingResponse> {
+        val bidding = biddingService.create(authentication, postId, request)
+
+        return AnbdApiResponse.success(
+            traceId = traceIdResolver.getTraceId(),
+            body = BiddingResponse.from(bidding)
+        )
+    }
+
+    @Operation(
+        summary = "공유 글 입찰 수정",
+        description = "공유 글 입찰 수정."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "공유 글 입찰 수정 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청")
+        ]
+    )
+    @PutMapping("/bid/{biddingId}")
+    fun updateBid(
+        authentication: Authentication,
+        @PathVariable biddingId: Long,
+        @RequestBody request: BiddingRequest
+    ): AnbdApiResponse<BiddingResponse> {
+        val bidding = biddingService.update(authentication, biddingId, request)
+
+        return AnbdApiResponse.success(
+            traceId = traceIdResolver.getTraceId(),
+            body = BiddingResponse.from(bidding)
+        )
+    }
+
+    @Operation(
+        summary = "공유 글 입찰 삭제",
+        description = "공유 글 입찰 삭제."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "공유 글 입찰 삭제 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청")
+        ]
+    )
+    @DeleteMapping("/bid/{biddingId}")
+    fun deleteBid(
+        authentication: Authentication,
+        @PathVariable biddingId: Long
+    ): AnbdApiResponse<String> {
+        biddingService.delete(authentication, biddingId)
+
+        return AnbdApiResponse.success(
+            traceId = traceIdResolver.getTraceId(),
+            body = AnbdApiResponse.SUCCESS
+        )
+    }
+
+    @Operation(
+        summary = "공유 글 입찰 전체 조회",
+        description = "공유 글 입찰 전체 조회."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "공유 글 입찰 조회 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청")
+        ]
+    )
+    @GetMapping("/{postId}/bids")
+    fun getBids(
+        @PathVariable postId: Long
+    ): AnbdApiResponse<List<BiddingResponse>> {
+        val biddings = biddingService.getBiddings(postId)
+
+        return AnbdApiResponse.success(
+            traceId = traceIdResolver.getTraceId(),
+            body = biddings.map { BiddingResponse.from(it) }
+        )
+    }
+
+    @Operation(
+        summary = "공유 글 입찰 단일 조회",
+        description = "공유 글 입찰 단일 조회."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "공유 글 입찰 조회 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청")
+        ]
+    )
+    @GetMapping("/bid/{biddingId}")
+    fun getBid(
+        @PathVariable biddingId: Long
+    ): AnbdApiResponse<BiddingResponse> {
+        val bidding = biddingService.getBidding(biddingId)
+
+        return AnbdApiResponse.success(
+            traceId = traceIdResolver.getTraceId(),
+            body = BiddingResponse.from(bidding)
+        )
+    }
+
+    @Operation(
+        summary = "낙찰자 선택 및 거래 완료 처리(임시)",
+        description = "낙찰자 선택 및 거래 완료 처리(임시)"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "공유 글 입찰 조회 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청")
+        ]
+    )
+    @PostMapping("/{postId}/bid/{biddingId}/complete")
+    fun completeBid(
+        authentication: Authentication,
+        @PathVariable postId: Long,
+        @PathVariable biddingId: Long
+    ): AnbdApiResponse<String> {
+        biddingService.completeBid(authentication, postId, biddingId)
+
+        return AnbdApiResponse.success(
+            traceId = traceIdResolver.getTraceId(),
+            body = AnbdApiResponse.SUCCESS
+        )
+    }
+
+
 }

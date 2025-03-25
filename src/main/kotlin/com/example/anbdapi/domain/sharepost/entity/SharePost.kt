@@ -44,11 +44,14 @@ class SharePost(
     var neighborhood: String,
 
     @Column(name = "is_sold")
-    var isSold: Boolean = false,
+    var isSold: Boolean,
 
     @Column(name = "hits")
     var hits: Int = 0,
 
     @Column(name = "deleted_at")
     var deletedAt: LocalDateTime? = null
-) : BaseEntity()
+) : BaseEntity() {
+    @OneToMany(mappedBy = "sharePost", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var biddings: MutableList<Bidding> = mutableListOf()
+}
