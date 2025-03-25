@@ -49,6 +49,7 @@ data class SharePostResponse(
             )
         }
 
+        // 내 게시글 조회에서만 사용
         fun from(post: SharePost, currentUserId: Long?, likes: List<SharePostLike>): SharePostResponse {
             return SharePostResponse(
                 id = post.id!!,

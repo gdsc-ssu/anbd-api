@@ -37,6 +37,7 @@ class BiddingService(
         return biddingRepository.findAllBySharePost(sharePost)
     }
 
+
     @Transactional
     fun create(authentication: Authentication, postId: Long, request: BiddingRequest): Bidding {
         if (request.donation > 5000) {

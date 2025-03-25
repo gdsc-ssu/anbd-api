@@ -4,6 +4,7 @@ import com.example.anbdapi.domain.sharepost.controller.request.SharePostRequest
 import com.example.anbdapi.domain.sharepost.controller.response.SharePostResponse
 import com.example.anbdapi.domain.sharepost.entity.SharePost
 import com.example.anbdapi.domain.sharepost.exception.SharePostNotFoundException
+import com.example.anbdapi.domain.sharepost.repository.BiddingRepository
 import com.example.anbdapi.domain.sharepost.repository.SharePostLikeRepository
 import com.example.anbdapi.domain.sharepost.repository.SharePostQuerydslRepository
 import com.example.anbdapi.domain.sharepost.repository.SharePostRepository
@@ -30,7 +31,7 @@ class SharePostService(
     private val userRepository: UserRepository,
     private val sharePostDescriptionGenerator: SharePostDescriptionGenerator,
     private val sharePostCategoryGenerator: SharePostCategoryGenerator,
-    private val biddingService: BiddingService,
+    private val biddingRepository: BiddingRepository
 
 ) {
     @Transactional
@@ -73,7 +74,7 @@ class SharePostService(
 
         post.hits += 1
 
-        val bidding = biddingService.getBiddingByUserAndSharePost(currentUser, post)
+        val bidding = biddingRepository.findByUserAndSharePost(currentUser, post)
 
         val likes = sharePostLikeRepository.findBySharePost(post)
 
@@ -102,15 +103,17 @@ class SharePostService(
         val postIds =  posts.map { it.id!!}.content.toList()
 
         val allLikes = sharePostLikeRepository.findBySharePostIdIn(postIds)
+        val allBiddings = biddingRepository.findAllByUser(currentUser)
 
         return posts.map { post ->
             val postLikes = allLikes.filter { it.sharePost.id == post.id }
-            SharePostResponse.from(post, currentUser.id!!, postLikes)
+            val postBidding = allBiddings.firstOrNull { it.sharePost.id == post.id }
+            SharePostResponse.from(post, currentUser.id, postLikes, postBidding)
         }
     }
 
     fun getUserPosts(authentication: Authentication, userId: Long, pageable: Pageable): Page<SharePostResponse> {
-        val currentUserId = userApplicationService.getCurrentUserId(authentication)
+        val currentUser = userApplicationService.getCurrentUser(authentication)
 
         val user = userRepository.findByIdOrNull(userId)
             ?: throw UserNotFoundException("User not found")
@@ -119,10 +122,12 @@ class SharePostService(
         val postIds =  posts.map { it.id!!}.content.toList()
 
         val allLikes = sharePostLikeRepository.findBySharePostIdIn(postIds)
+        val allBiddings = biddingRepository.findAllByUser(currentUser)
 
         return posts.map { post ->
             val postLikes = allLikes.filter { it.sharePost.id == post.id }
-            SharePostResponse.from(post, currentUserId, postLikes)
+            val postBidding = allBiddings.firstOrNull { it.sharePost.id == post.id }
+            SharePostResponse.from(post, currentUser.id!!, postLikes, postBidding)
         }
     }
 
@@ -151,6 +156,7 @@ class SharePostService(
         // TODO: title과 content update시 gemini 활용 category type도 update
         val updatedCategory = sharePostCategoryGenerator.categorizeItem(request.title, request.content)
 
+        val bidding = biddingRepository.findByUserAndSharePost(currentUser, post)
 
         post.title = request.title
         post.category = updatedCategory
@@ -159,7 +165,7 @@ class SharePostService(
         post.type = request.type
         post.description = updatedDescription
 
-        return SharePostResponse.from(post, currentUser.id!!, likes)
+        return SharePostResponse.from(post, currentUser.id!!, likes, bidding)
     }
 
     @Transactional

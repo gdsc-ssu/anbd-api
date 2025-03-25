@@ -1,6 +1,7 @@
 package com.example.anbdapi.domain.user.service
 
 import com.example.anbdapi.domain.sharepost.controller.response.SharePostResponse
+import com.example.anbdapi.domain.sharepost.repository.BiddingRepository
 import com.example.anbdapi.domain.sharepost.repository.SharePostLikeRepository
 import com.example.anbdapi.domain.sharepost.repository.SharePostRepository
 import com.example.anbdapi.domain.user.entity.User
@@ -15,6 +16,7 @@ class UserContentService(
     private val userRepository: UserRepository,
     private val sharePostLikeRepository: SharePostLikeRepository,
     private val sharePostRepository: SharePostRepository,
+    private val biddingRepository: BiddingRepository,
 ) {
 
     fun getLikedPosts(userId: Long, pageable: Pageable): Page<SharePostResponse> {
@@ -30,11 +32,13 @@ class UserContentService(
         } else {
             sharePostLikeRepository.findBySharePostIdIn(postIds)
         }
+        val allBiddings = biddingRepository.findAllByUser(user)
 
         return likedPosts.map { like ->
             val post = like.sharePost
             val postLikes = allLikes.filter { it.sharePost.id == post.id }
-            SharePostResponse.from(post, userId, postLikes)
+            val postBidding = allBiddings.firstOrNull { it.sharePost.id == post.id }
+            SharePostResponse.from(post, userId, postLikes, postBidding)
         }
     }
 

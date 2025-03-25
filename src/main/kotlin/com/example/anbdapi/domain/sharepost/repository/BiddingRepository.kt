@@ -13,4 +13,8 @@ interface BiddingRepository : JpaRepository<Bidding, Long> {
     fun existsByUserAndSharePost(user: User, sharePost: SharePost): Boolean
 
     fun findByUserAndSharePost(user: User, sharePost: SharePost): Bidding?
+
+    fun findAllBySharePostIdIn(sharePostIds: List<Long>): List<Bidding>
+
+    fun findAllByUser(user: User): List<Bidding>
 }
