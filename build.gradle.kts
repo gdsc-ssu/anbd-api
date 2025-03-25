@@ -93,3 +93,7 @@ tasks.getByName("bootJar") {
 tasks.getByName("jar") {
     enabled = false
 }
+
+tasks.withType<JavaCompile> {
+    options.annotationProcessorGeneratedSourcesDirectory = file("build/generated/querydsl")
+}
