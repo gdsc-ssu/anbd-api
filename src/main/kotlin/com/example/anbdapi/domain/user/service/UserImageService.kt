@@ -89,9 +89,9 @@ class UserImageService (
             throw UserImageUploadException("Empty file.")
         }
 
-        val allowedTypes = listOf("image/jpeg", "image/png", "image/heic", "image/HEIC", "image/heif", "image/HEIF")
         val contentType = file.contentType
-        if (contentType == null || !allowedTypes.contains(contentType)) {
+
+        if (contentType == null) {
             throw UserImageUploadException("Image allow only jpg, png, heic, heif")
         }
     }
