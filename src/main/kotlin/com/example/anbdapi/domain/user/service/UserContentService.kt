@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
 class UserContentService(
     private val userRepository: UserRepository,
     private val sharePostLikeRepository: SharePostLikeRepository,
-    private val sharePostRepository: SharePostRepository
+    private val sharePostRepository: SharePostRepository,
 ) {
 
     fun getLikedPosts(userId: Long, pageable: Pageable): Page<SharePostResponse> {

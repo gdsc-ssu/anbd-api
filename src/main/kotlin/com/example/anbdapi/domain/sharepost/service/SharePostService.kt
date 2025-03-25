@@ -29,7 +29,8 @@ class SharePostService(
     private val sharePostLikeRepository: SharePostLikeRepository,
     private val userRepository: UserRepository,
     private val sharePostDescriptionGenerator: SharePostDescriptionGenerator,
-    private val sharePostCategoryGenerator: SharePostCategoryGenerator
+    private val sharePostCategoryGenerator: SharePostCategoryGenerator,
+    private val biddingService: BiddingService,
 
 ) {
     @Transactional
@@ -65,16 +66,18 @@ class SharePostService(
     }
 
     fun getPostById(authentication: Authentication, postId: Long): SharePostResponse {
-        val currentUserId = userApplicationService.getCurrentUserId(authentication)
+        val currentUser = userApplicationService.getCurrentUser(authentication)
 
         val post = sharePostRepository.findByIdOrNull(postId)
             ?: throw SharePostNotFoundException("Post not found")
 
         post.hits += 1
 
+        val bidding = biddingService.getBiddingByUserAndSharePost(currentUser, post)
+
         val likes = sharePostLikeRepository.findBySharePost(post)
 
-        return SharePostResponse.from(post, currentUserId, likes)
+        return SharePostResponse.from(post, currentUser.id!!, likes, bidding)
     }
 
     fun getPosts(

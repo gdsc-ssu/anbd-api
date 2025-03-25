@@ -2,10 +2,12 @@ package com.example.anbdapi.domain.sharepost.service
 
 import com.example.anbdapi.domain.sharepost.controller.request.BiddingRequest
 import com.example.anbdapi.domain.sharepost.entity.Bidding
+import com.example.anbdapi.domain.sharepost.entity.SharePost
 import com.example.anbdapi.domain.sharepost.exception.BiddingBadRequestException
 import com.example.anbdapi.domain.sharepost.exception.SharePostNotFoundException
 import com.example.anbdapi.domain.sharepost.repository.BiddingRepository
 import com.example.anbdapi.domain.sharepost.repository.SharePostRepository
+import com.example.anbdapi.domain.user.entity.User
 import com.example.anbdapi.domain.user.service.UserApplicationService
 import jakarta.transaction.Transactional
 import org.springframework.data.repository.findByIdOrNull
@@ -21,6 +23,12 @@ class BiddingService(
     fun getBidding(biddingId: Long): Bidding {
         return biddingRepository.findByIdOrNull(biddingId)
             ?: throw SharePostNotFoundException("Bidding not found")
+    }
+
+    fun getBiddingByUserAndSharePost(user: User, sharePost: SharePost): Bidding? {
+        val bidding = biddingRepository.findByUserAndSharePost(user, sharePost)
+
+        return bidding
     }
 
     fun getBiddings(postId: Long): List<Bidding> {

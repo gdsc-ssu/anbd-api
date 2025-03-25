@@ -1,5 +1,6 @@
 package com.example.anbdapi.domain.sharepost.controller.response
 
+import com.example.anbdapi.domain.sharepost.entity.Bidding
 import com.example.anbdapi.domain.sharepost.entity.SharePost
 import com.example.anbdapi.domain.sharepost.entity.SharePostLike
 import com.example.anbdapi.support.enums.ShareCategory
@@ -21,9 +22,33 @@ data class SharePostResponse(
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
     val likeCount: Int,
-    val isLiked: Boolean
+    val isLiked: Boolean,
+    val isBid: Boolean,
 ) {
     companion object {
+        fun from(post: SharePost, currentUserId: Long?, likes: List<SharePostLike>, bidding: Bidding?): SharePostResponse {
+            return SharePostResponse(
+                id = post.id!!,
+                userId = post.user.id!!,
+                title = post.title,
+                category = post.category,
+                content = post.content,
+                images = post.imageUrls,
+                type = post.type,
+                description = post.description,
+                location = post.neighborhood,
+                isSold = post.isSold,
+                hits = post.hits,
+                createdAt = post.createdAt,
+                updatedAt = post.updatedAt,
+                likeCount = likes.size,
+                isLiked = currentUserId?.let { userId ->
+                    likes.any { it.user.id == userId }
+                } ?: false,
+                isBid = bidding != null
+            )
+        }
+
         fun from(post: SharePost, currentUserId: Long?, likes: List<SharePostLike>): SharePostResponse {
             return SharePostResponse(
                 id = post.id!!,
@@ -42,7 +67,8 @@ data class SharePostResponse(
                 likeCount = likes.size,
                 isLiked = currentUserId?.let { userId ->
                     likes.any { it.user.id == userId }
-                } ?: false
+                } ?: false,
+                isBid = false,
             )
         }
 
@@ -62,7 +88,8 @@ data class SharePostResponse(
                 createdAt = post.createdAt,
                 updatedAt = post.updatedAt,
                 likeCount = 0,
-                isLiked = false
+                isLiked = false,
+                isBid = false
             )
         }
     }
