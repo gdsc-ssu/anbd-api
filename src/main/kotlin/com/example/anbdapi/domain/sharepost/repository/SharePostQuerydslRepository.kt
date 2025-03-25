@@ -29,7 +29,6 @@ class SharePostQuerydslRepository(
         val query = JPAQueryFactory(entityManager)
 
         val whereClause = BooleanBuilder()
-            .and(sharePost.isSold.eq(false))
             .and(sharePost.deletedAt.isNull)
             .and(sharePost.neighborhood.eq(location))
 
