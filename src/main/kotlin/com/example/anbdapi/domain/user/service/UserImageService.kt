@@ -46,19 +46,8 @@ class UserImageService (
     fun uploadSharePostImage(user: User, file: MultipartFile): String {
         validateImage(file)
 
-        // TODO: share-post-images/{postId}로 변경
-        val imageUrl = uploadToStorage(file, "share-post-images")
-
-        user.profileImage?.let {
-            if (it.contains("storage.googleapis.com")) {
-                deleteImage(it)
-            }
-        }
-
-        user.profileImage = imageUrl
-        userRepository.save(user)
-
-        return imageUrl
+        // TODO: Image upload시 user profile image 변경 제거
+        return uploadToStorage(file, "share-post-images")
     }
 
     @Transactional

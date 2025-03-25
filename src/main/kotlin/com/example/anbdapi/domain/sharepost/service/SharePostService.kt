@@ -27,7 +27,10 @@ class SharePostService(
     private val sharePostRepository: SharePostRepository,
     private val sharePostQuerydslRepository: SharePostQuerydslRepository,
     private val sharePostLikeRepository: SharePostLikeRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val sharePostDescriptionGenerator: SharePostDescriptionGenerator,
+    private val sharePostCategoryGenerator: SharePostCategoryGenerator
+
 ) {
     @Transactional
     fun createPost(authentication: Authentication, request: SharePostRequest): SharePost {
@@ -38,15 +41,23 @@ class SharePostService(
             imageUrls.add(userImageService.uploadSharePostImage(currentUser, it))
         }
 
+        // TODO: title, content 기반 gemini ai 활용 문구 생성
+        val description = sharePostDescriptionGenerator.generateDescription(request.title, request.content)
+
+        // TODO: title, content 기반 gemini 활용하여 category type 결정
+        val category = sharePostCategoryGenerator.categorizeItem(request.title, request.content)
+
+
+
         val post = SharePost(
             user = currentUser,
             title = request.title,
-            category = request.category,
+            category = category,
             content = request.content,
             imageUrls = imageUrls,
             type = request.type,
             neighborhood = currentUser.neighborhood!!,    // TODO: 사용자가 인증한 동네로 변경
-            description = request.description
+            description = description
         )
 
         return sharePostRepository.save(post)
@@ -122,12 +133,19 @@ class SharePostService(
             imageUrls.add(userImageService.uploadSharePostImage(currentUser, it))
         }
 
+        // TODO: title과 content update시 gemini ai 활용 설명도 update
+        val updatedDescription = sharePostDescriptionGenerator.generateDescription(request.title, request.content)
+
+        // TODO: title과 content update시 gemini 활용 category type도 update
+        val updatedCategory = sharePostCategoryGenerator.categorizeItem(request.title, request.content)
+
+
         post.title = request.title
-        post.category = request.category
+        post.category = updatedCategory
         post.content = request.content
         post.imageUrls = imageUrls
         post.type = request.type
-        post.description = request.description
+        post.description = updatedDescription
 
         return SharePostResponse.from(post, currentUser.id!!, likes)
     }

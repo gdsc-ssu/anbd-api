@@ -33,7 +33,8 @@ class DevService(
             profileImage = null,
             gender = Gender.OTHER,
             birthDate = LocalDate.of(2000, 1, 1),
-            neighborhood = null,
+            // TODO : 동네 default 서울로 설정
+            neighborhood = "서울",
             shareCategories = mutableListOf(),
             reliability = 0,
             refreshToken = null,
@@ -71,6 +72,11 @@ class DevService(
         val hasDevProvider = user.socialAccounts.any { it.provider == Provider.DEV }
         if (!hasDevProvider) {
             throw IllegalArgumentException("Not registered as a developer account.")
+        }
+
+        // TODO : 동네가 설정되어 있지 않은 경우 "서울"로 설정
+        if (user.neighborhood == null) {
+            user.neighborhood = "서울"
         }
 
         val accessToken = jwtUtil.generateAccessToken(user.id!!)

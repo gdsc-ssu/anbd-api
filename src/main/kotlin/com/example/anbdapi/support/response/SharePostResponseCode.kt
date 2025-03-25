@@ -4,5 +4,6 @@ class SharePostResponseCode {
     companion object {
         const val SHAREPOST_01 = "SharePost-001" // SharePostNotFoundException
         const val SHAREPOST_02 = "SharePost-002" // SharePostLikeBadRequestException
+        const val SHAREPOST_03 = "SharePost-003" // SharePostGeminiException
     }
 }
