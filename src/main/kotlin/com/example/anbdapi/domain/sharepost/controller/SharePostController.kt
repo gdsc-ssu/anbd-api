@@ -100,9 +100,10 @@ class SharePostController(
         @RequestParam(required = false) location: String?,
         @RequestParam(required = false) category: ShareCategory?,
         @RequestParam(required = false) type: ShareType?,
+        @RequestParam(required = false) isSold: Boolean?,
         pageable: Pageable
     ): AnbdApiResponse<Page<SharePostResponse>> {
-        val posts = sharePostService.getPosts(authentication, keyword, location, category, type, pageable)
+        val posts = sharePostService.getPosts(authentication, keyword, location, category, type, isSold, pageable)
 
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
@@ -343,4 +344,30 @@ class SharePostController(
             body = BiddingResponse.from(bidding)
         )
     }
+
+    @Operation(
+        summary = "낙찰자 선택 및 거래 완료 처리(임시)",
+        description = "낙찰자 선택 및 거래 완료 처리(임시)"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "공유 글 입찰 조회 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청")
+        ]
+    )
+    @PostMapping("/{postId}/bid/{biddingId}/complete")
+    fun completeBid(
+        authentication: Authentication,
+        @PathVariable postId: Long,
+        @PathVariable biddingId: Long
+    ): AnbdApiResponse<String> {
+        biddingService.completeBid(authentication, postId, biddingId)
+
+        return AnbdApiResponse.success(
+            traceId = traceIdResolver.getTraceId(),
+            body = AnbdApiResponse.SUCCESS
+        )
+    }
+
+
 }

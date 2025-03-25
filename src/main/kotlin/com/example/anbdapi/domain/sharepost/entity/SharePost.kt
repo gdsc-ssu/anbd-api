@@ -44,7 +44,7 @@ class SharePost(
     var neighborhood: String,
 
     @Column(name = "is_sold")
-    var isSold: Boolean = false,
+    var isSold: Boolean,
 
     @Column(name = "hits")
     var hits: Int = 0,

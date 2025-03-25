@@ -90,4 +90,30 @@ class BiddingService(
 
         biddingRepository.delete(bidding)
     }
+
+    @Transactional
+    fun completeBid(authentication: Authentication, postId: Long, biddingId: Long) {
+        val currentUser = userApplicationService.getCurrentUser(authentication)
+
+        val sharePost = sharePostRepository.findByIdOrNull(postId)
+            ?: throw SharePostNotFoundException("SharePost not found")
+
+        if (sharePost.user.id != currentUser.id) {
+            throw SharePostNotFoundException("Can't complete other user's sharing.")
+        }
+
+        // TODO: 거래 완료는 추후 채팅까지 완료되면 변경하기
+        biddingRepository.findByIdOrNull(biddingId)
+            ?: throw SharePostNotFoundException("Bidding not found")
+
+        val biddings = biddingRepository.findAllBySharePost(sharePost)
+        biddings.map {
+            it.isSelected = it.id == biddingId
+        }
+
+        sharePost.isSold = true
+
+        sharePostRepository.save(sharePost)
+        biddingRepository.saveAll(biddings)
+    }
 }

@@ -57,6 +57,7 @@ class SharePostService(
             imageUrls = imageUrls,
             type = request.type,
             neighborhood = currentUser.neighborhood!!,    // TODO: 사용자가 인증한 동네로 변경
+            isSold = false,
             description = description
         )
 
@@ -76,7 +77,14 @@ class SharePostService(
         return SharePostResponse.from(post, currentUserId, likes)
     }
 
-    fun getPosts(authentication: Authentication, keyword: String?, location: String?, category: ShareCategory?, type: ShareType?, pageable: Pageable): Page<SharePostResponse> {
+    fun getPosts(
+        authentication: Authentication,
+        keyword: String?, location: String?,
+        category: ShareCategory?,
+        type: ShareType?,
+        isSold: Boolean?,
+        pageable: Pageable
+    ): Page<SharePostResponse> {
         val currentUser = userApplicationService.getCurrentUser(authentication)
 
         val posts = sharePostQuerydslRepository.findPosts(
@@ -84,6 +92,7 @@ class SharePostService(
             location = location ?: currentUser.neighborhood!!,    // TODO: 사용자가 인증한 동네로 변경
             category = category,
             type = type,
+            isSold = isSold,
             pageable = pageable
         )
 
