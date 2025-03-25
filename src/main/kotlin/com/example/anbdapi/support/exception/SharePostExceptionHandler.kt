@@ -1,8 +1,6 @@
 package com.example.anbdapi.support.exception
 
-import com.example.anbdapi.domain.sharepost.exception.SharePostGeminiException
-import com.example.anbdapi.domain.sharepost.exception.SharePostLikeBadRequestException
-import com.example.anbdapi.domain.sharepost.exception.SharePostNotFoundException
+import com.example.anbdapi.domain.sharepost.exception.*
 import com.example.anbdapi.support.logging.TraceIdResolver
 import com.example.anbdapi.support.response.AnbdApiResponse
 import com.example.anbdapi.support.response.ErrorResponse
@@ -64,6 +62,38 @@ class SharePostExceptionHandler(
             traceId = traceIdResolver.getTraceId(),
             status = HttpStatus.BAD_REQUEST,
             code = SharePostResponseCode.SHAREPOST_03,
+            body = body
+        )
+    }
+
+    @ExceptionHandler(BiddingNotFoundException::class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    fun handleBiddingNotFoundException(ex: BiddingNotFoundException): AnbdApiResponse<ErrorResponse> {
+        log.error("BiddingNotFound 발생: {}", ex.message, ex)
+
+        val message = ex.message ?: "입찰글을 찾을 수 없습니다."
+        val body = ErrorResponse(message)
+
+        return AnbdApiResponse.of(
+            traceId = traceIdResolver.getTraceId(),
+            status = HttpStatus.NOT_FOUND,
+            code = SharePostResponseCode.SHAREPOST_04,
+            body = body
+        )
+    }
+
+    @ExceptionHandler(BiddingBadRequestException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleBiddingBadRequestException(ex: BiddingBadRequestException): AnbdApiResponse<ErrorResponse> {
+        log.error("BiddingBadRequestException 발생: {}", ex.message, ex)
+
+        val message = ex.message ?: "잘못된 입찰 정보입니다."
+        val body = ErrorResponse(message)
+
+        return AnbdApiResponse.of(
+            traceId = traceIdResolver.getTraceId(),
+            status = HttpStatus.BAD_REQUEST,
+            code = SharePostResponseCode.SHAREPOST_05,
             body = body
         )
     }

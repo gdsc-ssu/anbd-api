@@ -51,4 +51,7 @@ class SharePost(
 
     @Column(name = "deleted_at")
     var deletedAt: LocalDateTime? = null
-) : BaseEntity()
+) : BaseEntity() {
+    @OneToMany(mappedBy = "sharePost", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var biddings: MutableList<Bidding> = mutableListOf()
+}
