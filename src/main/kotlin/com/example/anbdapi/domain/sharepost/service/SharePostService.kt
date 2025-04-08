@@ -49,8 +49,6 @@ class SharePostService(
         // TODO: title, content 기반 gemini 활용하여 category type 결정
         val category = sharePostCategoryGenerator.categorizeItem(request.title, request.content)
 
-
-
         val post = SharePost(
             user = currentUser,
             title = request.title,

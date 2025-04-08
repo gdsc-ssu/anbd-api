@@ -3,13 +3,13 @@ package com.example.anbdapi.domain.sharepost.controller.response
 import com.example.anbdapi.domain.sharepost.entity.Bidding
 import com.example.anbdapi.domain.sharepost.entity.SharePost
 import com.example.anbdapi.domain.sharepost.entity.SharePostLike
+import com.example.anbdapi.domain.user.dto.response.UserProfileResponse
 import com.example.anbdapi.support.enums.ShareCategory
 import com.example.anbdapi.support.enums.ShareType
 import java.time.LocalDateTime
 
 data class SharePostResponse(
     val id: Long,
-    val userId: Long,
     val title: String,
     val category: ShareCategory,
     val content: String,
@@ -24,12 +24,12 @@ data class SharePostResponse(
     val likeCount: Int,
     val isLiked: Boolean,
     val isBid: Boolean,
+    val userProfileResponse: UserProfileResponse,
 ) {
     companion object {
         fun from(post: SharePost, currentUserId: Long?, likes: List<SharePostLike>, bidding: Bidding?): SharePostResponse {
             return SharePostResponse(
                 id = post.id!!,
-                userId = post.user.id!!,
                 title = post.title,
                 category = post.category,
                 content = post.content,
@@ -45,7 +45,8 @@ data class SharePostResponse(
                 isLiked = currentUserId?.let { userId ->
                     likes.any { it.user.id == userId }
                 } ?: false,
-                isBid = bidding != null
+                isBid = bidding != null,
+                userProfileResponse = UserProfileResponse.from(post.user),
             )
         }
 
@@ -53,7 +54,6 @@ data class SharePostResponse(
         fun from(post: SharePost, currentUserId: Long?, likes: List<SharePostLike>): SharePostResponse {
             return SharePostResponse(
                 id = post.id!!,
-                userId = post.user.id!!,
                 title = post.title,
                 category = post.category,
                 content = post.content,
@@ -70,13 +70,14 @@ data class SharePostResponse(
                     likes.any { it.user.id == userId }
                 } ?: false,
                 isBid = false,
+                userProfileResponse = UserProfileResponse.from(post.user),
             )
         }
 
+        // 게시글 생성 시
         fun from(post: SharePost): SharePostResponse {
             return SharePostResponse(
                 id = post.id!!,
-                userId = post.user.id!!,
                 title = post.title,
                 category = post.category,
                 content = post.content,
@@ -90,7 +91,8 @@ data class SharePostResponse(
                 updatedAt = post.updatedAt,
                 likeCount = 0,
                 isLiked = false,
-                isBid = false
+                isBid = false,
+                userProfileResponse = UserProfileResponse.from(post.user),
             )
         }
     }
