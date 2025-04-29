@@ -39,7 +39,7 @@ env:
   PROJECT_ID: 'anbd' # TODO: update to your Google Cloud project ID
   REGION: 'asia-northeast3' # TODO: update to your region
   SERVICE: 'anbd' # TODO: update to your service name
-  WORKLOAD_IDENTITY_PROVIDER: '/projects/987930191097/locations/global/workloadIdentityPools/anbd-github-actions/providers/github-actions' # TODO: update to your workload identity provider
+  WORKLOAD_IDENTITY_PROVIDER: 'projects/987930191097/locations/global/workloadIdentityPools/anbd-github-actions/providers/github-actions' # TODO: update to your workload identity provider
 
 jobs:
   deploy:
