@@ -36,7 +36,7 @@ on:
     branches: [ "develop" ]
 
 env:
-  PROJECT_ID: 'anbd-project' # TODO: update to your Google Cloud project ID
+  PROJECT_ID: 'vital-victor-458305-k4' # TODO: update to your Google Cloud project ID
   REGION: 'asia-northeast3' # TODO: update to your region
   SERVICE: 'anbd' # TODO: update to your service name
   WORKLOAD_IDENTITY_PROVIDER: 'projects/987930191097/locations/global/workloadIdentityPools/anbd-github-actions/providers/github-actions' # TODO: update to your workload identity provider
@@ -62,7 +62,7 @@ jobs:
         uses: 'google-github-actions/auth@f112390a2df9932162083945e46d439060d66ec2' # google-github-actions/auth@v2
         with:
           workload_identity_provider: '${{ env.WORKLOAD_IDENTITY_PROVIDER }}'
-          service_account: 'anbd-admin@anbd-project.iam.gserviceaccount.com' # TODO: update to your service account email
+          service_account: 'anbd-project@vital-victor-458305-k4.iam.gserviceaccount.com' # TODO: update to your service account email
 
       # Build application
       - name: Set up JDK 17
