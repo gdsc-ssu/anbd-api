@@ -36,10 +36,10 @@ on:
     branches: [ "develop" ]
 
 env:
-  PROJECT_ID: 'vital-victor-458305-k4' # TODO: update to your Google Cloud project ID
+  PROJECT_ID: 'anbd' # TODO: update to your Google Cloud project ID
   REGION: 'asia-northeast3' # TODO: update to your region
   SERVICE: 'anbd' # TODO: update to your service name
-  WORKLOAD_IDENTITY_PROVIDER: 'projects/987930191097/locations/global/workloadIdentityPools/anbd-github-actions/providers/github-actions' # TODO: update to your workload identity provider
+  WORKLOAD_IDENTITY_PROVIDER: '/projects/987930191097/locations/global/workloadIdentityPools/anbd-github-actions/providers/github-actions' # TODO: update to your workload identity provider
 
 jobs:
   deploy:
@@ -98,7 +98,6 @@ jobs:
 
       - name: 'Build and Push Container'
         run: |-
-          gcloud auth login
           gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://asia-northeast3-docker.pkg.dev
           DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/anbd-api:${{ github.sha }}"
           docker build --tag "${DOCKER_TAG}" .
