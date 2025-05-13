@@ -52,6 +52,11 @@ gcs:
   bucket-name: ${BUCKET_NAME}
   credentials-path: ${SERVICE_ACCOUNTS_KEY}
 
+google:
+  cloud:
+    vision:
+      credentials-path: ${SERVICE_ACCOUNTS_KEY}
+
 gemini:
   api:
     key: ${GEMINI_API_KEY}
