@@ -5,7 +5,6 @@ import com.example.anbdapi.support.enums.Gender
 import com.example.anbdapi.support.enums.ShareCategory
 import com.example.anbdapi.support.utils.BaseEntity
 import jakarta.persistence.*
-import org.hibernate.annotations.FilterDef
 import org.hibernate.annotations.SQLDelete
 import org.hibernate.annotations.SQLRestriction
 import java.time.LocalDate
@@ -15,7 +14,6 @@ import java.time.LocalDateTime
 @Table(name = "users")
 @SQLDelete(sql = "UPDATE users SET deleted_at = NOW() WHERE id = ?")
 @SQLRestriction("deleted_at is NULL")
-@FilterDef(name = "deletedFilter")
 class User(
 
     @Column(name = "nickname", nullable = false, unique = true, length = 64)
