@@ -1,9 +1,9 @@
 package com.example.anbdapi.support.configuration
 
 import com.example.anbdapi.domain.auth.service.CustomOAuth2UserService
-import com.example.anbdapi.support.utils.jwt.JwtAuthenticationFilter
 import com.example.anbdapi.support.global.OAuth2AuthenticationSuccessHandler
 import com.example.anbdapi.support.logging.TraceIdResolver
+import com.example.anbdapi.support.utils.jwt.JwtAuthenticationFilter
 import com.example.anbdapi.support.utils.jwt.JwtUtil
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.context.annotation.Bean
