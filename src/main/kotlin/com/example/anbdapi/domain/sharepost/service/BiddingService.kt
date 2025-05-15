@@ -1,8 +1,5 @@
 package com.example.anbdapi.domain.sharepost.service
 
-import com.example.anbdapi.infra.vision.donation.dto.response.DonationVerificationResponse
-import com.example.anbdapi.infra.vision.donation.exception.DonationVerificationException
-import com.example.anbdapi.infra.vision.donation.service.DonationVerificationService
 import com.example.anbdapi.domain.sharepost.controller.request.BiddingRequest
 import com.example.anbdapi.domain.sharepost.entity.Bidding
 import com.example.anbdapi.domain.sharepost.entity.SharePost
@@ -16,14 +13,12 @@ import jakarta.transaction.Transactional
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
-import org.springframework.web.multipart.MultipartFile
 
 @Service
 class BiddingService(
     private val userApplicationService: UserApplicationService,
     private val sharePostRepository: SharePostRepository,
     private val biddingRepository: BiddingRepository,
-    private val donationVerificationService: DonationVerificationService
 ) {
     fun getBidding(biddingId: Long): Bidding {
         return biddingRepository.findByIdOrNull(biddingId)
@@ -129,37 +124,5 @@ class BiddingService(
 
         sharePostRepository.save(sharePost)
         biddingRepository.saveAll(biddings)
-    }
-
-    @Transactional
-    fun verifyReceiptAndComplete(
-        bidderAuth: Authentication,
-        postId: Long,
-        biddingId: Long,
-        receipt: MultipartFile
-    ): DonationVerificationResponse {
-
-        val verification = donationVerificationService.verifyDonationReceipt(receipt, biddingId)
-        if (!verification.isVerified)
-            throw DonationVerificationException("Receipt verification failed")
-
-        val bidder     = userApplicationService.getCurrentUser(bidderAuth)
-        val sharePost  = sharePostRepository.findByIdOrNull(postId)
-            ?: throw SharePostNotFoundException("Sharepost not found")
-        if (sharePost.isSold)
-            throw IllegalStateException("Already sold post")
-
-        val bidding = biddingRepository.findByIdOrNull(biddingId)
-            ?: throw SharePostNotFoundException("Bidding not found")
-
-        if (bidding.isSelected != true)
-            throw IllegalStateException("Not selected bid")
-        if (bidding.user.id != bidder.id)
-            throw IllegalStateException("Not your bid")
-
-        sharePost.isSold = true
-        sharePostRepository.save(sharePost)
-
-        return verification
     }
 }
