@@ -10,6 +10,7 @@ import com.example.anbdapi.domain.sharepost.controller.response.SharePostRespons
 import com.example.anbdapi.domain.sharepost.exception.SharePostNotFoundException
 import com.example.anbdapi.domain.sharepost.repository.SharePostRepository
 import com.example.anbdapi.domain.user.dto.response.UserProfileResponse
+import com.example.anbdapi.domain.user.exception.UserNotFoundException
 import com.example.anbdapi.domain.user.repository.UserRepository
 import com.example.anbdapi.domain.user.service.UserApplicationService
 import jakarta.transaction.Transactional
@@ -32,6 +33,7 @@ class ChatService(
         val currentUser = userApplicationService.getCurrentUser(authentication)
         val sharePost = sharePostRepository.findByIdOrNull(sharePostId)
             ?: throw SharePostNotFoundException("Share post not found with id: $sharePostId")
+        val partnerUser =  userRepository.findByIdOrNull(partnerId) ?:  throw UserNotFoundException("Partener User not found with id: $partnerId")
 
         if (currentUser.id != sharePost.user.id) {
             throw IllegalArgumentException("Current user is not the owner of the share post")
@@ -45,7 +47,7 @@ class ChatService(
 
         if (existingRoom != null) return ChatRoomResponse.from(
             id = existingRoom.id!!,
-            partner = UserProfileResponse.from(currentUser),
+            partner = UserProfileResponse.from(partnerUser),
             sharePost = SharePostResponse.from(sharePost),
         )
 
@@ -100,7 +102,7 @@ class ChatService(
             throw IllegalArgumentException("User is not a participant in this chat room")
         }
 
-        val messages = chatMessageRepository.findAllByChatRoomOrderByTimestampAsc(chatRoom, pageable)
+        val messages = chatMessageRepository.findAllByChatRoomOrderByTimestampDesc(chatRoom, pageable)
 
         return messages.map { chatMessage ->
             ChatMessageResponse.from(
