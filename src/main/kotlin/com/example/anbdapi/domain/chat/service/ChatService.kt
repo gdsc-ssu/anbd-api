@@ -52,7 +52,7 @@ class ChatService(
         )
 
         val chatRoom = ChatRoom(
-            partner = currentUser,
+            partner = partnerUser,
             sharePost = sharePost,
         )
 
