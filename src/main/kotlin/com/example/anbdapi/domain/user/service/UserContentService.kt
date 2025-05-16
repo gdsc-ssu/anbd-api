@@ -69,4 +69,12 @@ class UserContentService(
             userRepository.save(currentUser)
         }
     }
+
+    fun getPurchasedPosts(currentUserId: Long, pageable: Pageable): Page<SharePostResponse> {
+        val purchasedPosts = sharePostRepository.findPurchasedPostsByUserId(currentUserId, pageable)
+
+        return purchasedPosts.map { post ->
+            SharePostResponse.from(post)
+        }
+    }
 }
