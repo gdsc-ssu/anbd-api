@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface ChatMessageRepository : JpaRepository<ChatMessage, Long> {
-    fun findAllByChatRoomOrderByTimestampDesc(chatRoom: ChatRoom, pageable: Pageable): Page<ChatMessage>
+    fun findAllByChatRoomOrderByTimestampAsc(chatRoom: ChatRoom, pageable: Pageable): Page<ChatMessage>
 }

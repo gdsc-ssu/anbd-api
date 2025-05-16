@@ -113,7 +113,7 @@ class ChatService(
             throw IllegalArgumentException("User is not a participant in this chat room")
         }
 
-        val messages = chatMessageRepository.findAllByChatRoomOrderByTimestampDesc(chatRoom, pageable)
+        val messages = chatMessageRepository.findAllByChatRoomOrderByTimestampAsc(chatRoom, pageable)
 
         return messages.map { chatMessage ->
             ChatMessageResponse.from(
