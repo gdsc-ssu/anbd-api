@@ -43,10 +43,12 @@ class UserService(
         )
 
         if (existingSocialAccount != null) {
-            val socialAccountId = (existingSocialAccount["social_id"] as Number).toLong()
-            val socialDeletedAt = existingSocialAccount["social_deleted_at"]
-            val userId          = (existingSocialAccount["user_id"] as Number).toLong()
-            val userDeletedAt   = existingSocialAccount["user_deleted_at"]
+            val socialAccountId = existingSocialAccount.socialId
+                ?: throw IllegalArgumentException("Social account ID is missing")
+            val socialDeletedAt = existingSocialAccount.socialDeletedAt
+            val userId = existingSocialAccount.userId
+                ?: throw IllegalArgumentException("User ID is missing for social account")
+            val userDeletedAt = existingSocialAccount.userDeletedAt
 
             if (socialDeletedAt != null || userDeletedAt != null) {
                 userSocialAccountRepository.restoreById(socialAccountId)
