@@ -176,29 +176,4 @@ class UserMyContentController(
             body = result
         )
     }
-
-    @Operation(
-        summary = "현재 사용자가 구매한 나눔글 목록 조회",
-        description = "현재 로그인한 사용자가 구매한 나눔글 목록을 조회합니다."
-    )
-    @ApiResponses(
-        value = [
-            ApiResponse(responseCode = "200", description = "나눔글 조회 성공"),
-            ApiResponse(responseCode = "400", description = "잘못된 요청"),
-            ApiResponse(responseCode = "401", description = "인증 실패")
-        ]
-    )
-    @GetMapping("/purchased-posts")
-    fun getMyPurchasedPosts(
-        authentication: Authentication,
-        pageable: Pageable
-    ): AnbdApiResponse<Page<SharePostResponse>> {
-
-        val purchasedPosts = userApplicationService.getMyPurchasedPosts(authentication, pageable)
-
-        return AnbdApiResponse.success(
-            traceId = traceIdResolver.getTraceId(),
-            body = purchasedPosts
-        )
-    }
 }
