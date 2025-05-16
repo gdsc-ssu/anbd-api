@@ -101,7 +101,7 @@ Together, we promote sustainability, reduce waste, and connect people through me
 
 ## 📽 Demo Video (3-min Submission)
 
-👉 [Watch Here](#) *(Link to YouTube or drive when ready)*
+👉 [Watch Here](https://youtu.be/hoBEhgEUL4M)
 
 ---
 
