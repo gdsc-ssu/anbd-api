@@ -37,38 +37,14 @@ class UserService(
         nickname: String,
         profileImage: String
     ): User {
-
-        val existingSocialAccount = userSocialAccountRepository.findSocialAccountWithUserByProviderAndProviderId(
-            registrationId.uppercase(), providerId
-        )
-
+        val providerEnum = Provider.valueOf(registrationId.uppercase())
+        val existingSocialAccount = userSocialAccountRepository.findByProviderAndProviderId(providerEnum, providerId)
         if (existingSocialAccount != null) {
-            val socialAccountId = existingSocialAccount.socialId
-                ?: throw IllegalArgumentException("Social account ID is missing")
-            val socialDeletedAt = existingSocialAccount.socialDeletedAt
-            val userId = existingSocialAccount.userId
-                ?: throw IllegalArgumentException("User ID is missing for social account")
-            val userDeletedAt = existingSocialAccount.userDeletedAt
-
-            if (socialDeletedAt != null || userDeletedAt != null) {
-                userSocialAccountRepository.restoreById(socialAccountId)
-                userRepository.restoreById(userId)
-            }
-
-            return userRepository.findById(userId).orElse(null)
-                ?: throw UserNotFoundException("User not found")
+            return existingSocialAccount.user
         }
 
-        val providerEnum = Provider.valueOf(registrationId.uppercase())
-
-        val existingUser = userRepository.findByEmailIncludingDeleted(email)
+        val existingUser = userRepository.findByEmail(email)
         if (existingUser != null) {
-
-            if (existingUser.deletedAt != null) {
-                existingUser.deletedAt = null
-                userRepository.save(existingUser)
-            }
-
             val newSocialAccount = UserSocialAccount(
                 user = existingUser,
                 provider = providerEnum,

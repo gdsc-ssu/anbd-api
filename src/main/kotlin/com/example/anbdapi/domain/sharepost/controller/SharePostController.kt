@@ -369,31 +369,5 @@ class SharePostController(
         )
     }
 
-    @Operation(
-        summary = "기부금 영수증 인증 + 낙찰 확정",
-        description = "영수증을 업로드해 인증이 완료되면 해당 입찰을 낙찰자로 확정하고 거래를 완료합니다."
-    )
-    @ApiResponses(
-        value = [
-            ApiResponse(responseCode = "200", description = "영수증 인증 & 낙찰 확정 성공"),
-            ApiResponse(responseCode = "400", description = "잘못된 요청")
-        ]
-    )
-    @PostMapping("/{postId}/bid/{biddingId}/verify",
-        consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]
-    )
-    fun verifyAndFinish(
-        authentication: Authentication,
-        @PathVariable postId: Long,
-        @PathVariable biddingId: Long,
-        @RequestPart("receiptImage") receipt: MultipartFile
-    ): AnbdApiResponse<String> {
 
-        biddingService.verifyReceiptAndComplete(authentication, postId, biddingId, receipt)
-
-        return AnbdApiResponse.success(
-            traceId = traceIdResolver.getTraceId(),
-            body = AnbdApiResponse.SUCCESS
-        )
-    }
 }
