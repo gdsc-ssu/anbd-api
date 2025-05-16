@@ -70,11 +70,22 @@ class ChatService(
         val chatRooms = chatRoomRepository.findBySharePostUserOrPartner(user, user)
 
         return chatRooms.map { room ->
-            ChatRoomResponse.from(
-                id = room.id!!,
-                partner = UserProfileResponse.from(room.partner),
-                sharePost = SharePostResponse.from(room.sharePost),
-            )
+            // partner는 현재 사용자의 상대방으로
+            if (user.id == room.partner.id) {
+                return@map ChatRoomResponse.from(
+                    id = room.id!!,
+                    partner = UserProfileResponse.from(room.sharePost.user),
+                    sharePost = SharePostResponse.from(room.sharePost),
+                )
+            } else if (user.id == room.sharePost.user.id) {
+                return@map ChatRoomResponse.from(
+                    id = room.id!!,
+                    partner = UserProfileResponse.from(room.partner),
+                    sharePost = SharePostResponse.from(room.sharePost),
+                )
+            } else {
+                throw IllegalArgumentException("User not found with id: ${room.id}")
+            }
         }
     }
 
