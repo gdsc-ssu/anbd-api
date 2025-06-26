@@ -36,10 +36,10 @@ on:
     branches: [ "develop" ]
 
 env:
-  PROJECT_ID: 'vital-victor-458305-k4' # TODO: update to your Google Cloud project ID
+  PROJECT_ID: 'esoteric-sled-464112-u7' # TODO: update to your Google Cloud project ID
   REGION: 'asia-northeast3' # TODO: update to your region
   SERVICE: 'anbd' # TODO: update to your service name
-  WORKLOAD_IDENTITY_PROVIDER: 'projects/987930191097/locations/global/workloadIdentityPools/anbd-github-actions/providers/github-actions' # TODO: update to your workload identity provider
+  WORKLOAD_IDENTITY_PROVIDER: 'projects/412476972789/locations/global/workloadIdentityPools/anbd-github-actions/providers/github-actions' # TODO: update to your workload identity provider
 
 jobs:
   deploy:
