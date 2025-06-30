@@ -52,6 +52,11 @@ gcs:
   bucket-name: ${BUCKET_NAME}
   credentials-path: ${SERVICE_ACCOUNTS_KEY}
 
+google:
+  cloud:
+    vision:
+      credentials-path: agile-ratio-452713-s4-fadc15b042e3.json
+
 gemini:
   api:
     key: ${GEMINI_API_KEY}
