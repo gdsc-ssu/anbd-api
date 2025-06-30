@@ -1,5 +1,8 @@
 package com.example.anbdapi.domain.sharepost.controller
 
+import com.example.anbdapi.domain.report.dto.request.ReportRequest
+import com.example.anbdapi.domain.report.dto.response.ReportResponse
+import com.example.anbdapi.domain.report.service.ReportService
 import com.example.anbdapi.domain.sharepost.controller.request.BiddingRequest
 import com.example.anbdapi.domain.sharepost.controller.request.SharePostRequest
 import com.example.anbdapi.domain.sharepost.controller.response.BiddingResponse
@@ -30,7 +33,8 @@ class SharePostController(
     private val traceIdResolver: TraceIdResolver,
     private val sharePostService: SharePostService,
     private val sharePostLikeService: SharePostLikeService,
-    private val biddingService: BiddingService
+    private val biddingService: BiddingService,
+    private val reportService: ReportService,
 ) {
     @Operation(
         summary = "나눔글 생성",
@@ -366,6 +370,31 @@ class SharePostController(
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
             body = AnbdApiResponse.SUCCESS
+        )
+    }
+
+    @Operation(
+        summary = "나눔글 신고하기",
+        description = "나눔글을 신고합니다. 카테고리와 설명을 포함할 수 있습니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "신고 접수 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            ApiResponse(responseCode = "409", description = "중복 신고")
+        ]
+    )
+    @PostMapping("/{postId}/report")
+    fun reportPost(
+        authentication: Authentication,
+        @PathVariable postId: Long,
+        @RequestBody request: ReportRequest
+    ): AnbdApiResponse<ReportResponse> {
+        val report = reportService.createReport(authentication, postId, request)
+
+        return AnbdApiResponse.success(
+            traceId = traceIdResolver.getTraceId(),
+            body = report
         )
     }
 
