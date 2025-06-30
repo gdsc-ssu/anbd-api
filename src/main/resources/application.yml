@@ -60,3 +60,6 @@ google:
 gemini:
   api:
     key: ${GEMINI_API_KEY}
+
+apple:
+  client-id: ${APPLE_CLIENT_ID}
