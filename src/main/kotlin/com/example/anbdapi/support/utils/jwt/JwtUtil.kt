@@ -119,4 +119,20 @@ class JwtUtil {
             throw JwtException("Invalid token format")
         }
     }
+
+    fun validateAndExtractClaims(token: String): Claims {
+        return try {
+            Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .payload
+        } catch (e: ExpiredJwtException) {
+            throw TokenExpiredException("Token has expired.")
+        } catch (e: JwtException) {
+            throw JwtException("Invalid token.")
+        } catch (e: IllegalArgumentException) {
+            throw IllegalArgumentException("Invalid token format.")
+        }
+    }
 }

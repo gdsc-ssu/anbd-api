@@ -15,10 +15,11 @@ import org.springframework.http.MediaType
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
+import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
+@Component
 class JwtAuthenticationFilter(
     private val jwtUtil: JwtUtil,
     private val objectMapper: ObjectMapper,
@@ -31,12 +32,8 @@ class JwtAuthenticationFilter(
         "/v1/users/logout"
     )
 
-    private fun isExcludedUrl(requestUri: String): Boolean {
-        return excludedUrls.contains(requestUri)
-    }
-
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
-        return isExcludedUrl(request.requestURI)
+        return excludedUrls.contains(request.requestURI)
     }
 
     override fun doFilterInternal(
@@ -45,36 +42,34 @@ class JwtAuthenticationFilter(
         filterChain: FilterChain
     ) {
         try {
+            val header = request.getHeader("Authorization")
 
-            if (isExcludedUrl(request.requestURI)) {
-                filterChain.doFilter(request, response)
-                return
-            }
-
-            val header = request.getHeader("Authorization") ?: ""
-            if (header.startsWith("Bearer ")) {
+            if (!header.isNullOrBlank() && header.startsWith("Bearer ")) {
                 val token = header.removePrefix("Bearer ").trim()
-                jwtUtil.validateToken(token)
-                val userId = jwtUtil.getUserIdFromToken(token)
 
-                // 이 프로젝트에서는 ROLE 없으므로 빈값 반환
+                val claims = jwtUtil.validateAndExtractClaims(token)
+                val userId = claims.subject ?: throw IllegalArgumentException("UserId not found in token")
+
                 val authorities = emptyList<SimpleGrantedAuthority>()
-                val attributes = mapOf("userId" to userId)
-                val principal = DefaultOAuth2User(authorities, attributes, "userId")
+                val principal = JwtUserPrincipal(userId, authorities)
 
                 val authentication = UsernamePasswordAuthenticationToken(principal, null, authorities)
                 authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
 
                 SecurityContextHolder.getContext().authentication = authentication
             }
-
             filterChain.doFilter(request, response)
+
         } catch (ex: TokenExpiredException) {
             handleTokenExpiredException(response, ex)
+            return
         } catch (ex: JwtException) {
             handleJwtException(response, ex)
+            return
         } catch (ex: Exception) {
             filterChain.doFilter(request, response)
+        } finally {
+            SecurityContextHolder.clearContext()
         }
     }
 
