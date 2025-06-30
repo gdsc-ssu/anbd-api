@@ -104,4 +104,10 @@ class UserApplicationService(
 
         return "Neighborhood updated successfully"
     }
+
+    fun getMyPurchasedPosts(authentication: Authentication, pageable: Pageable): Page<SharePostResponse> {
+        val currentUserId = getCurrentUserId(authentication)
+
+        return userContentService.getPurchasedPosts(currentUserId, pageable)
+    }
 }
