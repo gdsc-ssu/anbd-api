@@ -5,6 +5,7 @@ import com.example.anbdapi.domain.auth.dto.response.TokenResponse
 import com.example.anbdapi.domain.auth.exception.GoogleAuthException
 import com.example.anbdapi.domain.user.dto.response.LoginResponse
 import com.example.anbdapi.domain.user.service.UserService
+import com.example.anbdapi.support.utils.apple.AppleTokenVerifier
 import com.example.anbdapi.support.utils.jwt.JwtUtil
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.jsonwebtoken.JwtException
@@ -18,7 +19,8 @@ import org.springframework.stereotype.Service
 @Service
 class AuthService(
     private val userService: UserService,
-    private val jwtUtil: JwtUtil
+    private val jwtUtil: JwtUtil,
+    private val appleTokenVerifier: AppleTokenVerifier
 ) {
     private val GOOGLE_USER_INFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
 
@@ -99,5 +101,33 @@ class AuthService(
         } finally {
             httpClient.close()
         }
+    }
+
+    @Transactional
+    fun processMobileAppleLogin(idToken: String): LoginResponse {
+
+        val userInfo = appleTokenVerifier.verifyToken(idToken)
+
+        val providerId = userInfo["sub"] as String
+        val email = userInfo["email"] as? String ?: ""
+        val nickname = if (email.isNotBlank()) {
+            val emailPrefix = email.substringBefore("@")
+            val randomHex = (1..7).joinToString("") { (0..15).random().toString(16) }
+            "$emailPrefix$randomHex"
+        } else {
+            val randomHex = (1..7).joinToString("") { (0..15).random().toString(16) }
+            "AppleUser$randomHex"
+        }
+        val profileImage = "" // Apple은 기본적으로 프로필 이미지를 제공하지 않음
+
+        val user = userService.findOrCreateUser("APPLE", providerId, email, nickname, profileImage)
+
+        val jwtAccessToken = jwtUtil.generateAccessToken(user.id!!)
+        val jti = jwtUtil.getJtiFromToken(jwtAccessToken)
+        val refreshToken = jwtUtil.generateRefreshToken(user.id, jti)
+
+        userService.updateRefreshToken(user.id, refreshToken)
+
+        return LoginResponse(jwtAccessToken, refreshToken, user.isProfileCompleted)
     }
 }
