@@ -10,8 +10,8 @@ import com.example.anbdapi.domain.userSocialAccount.entity.UserSocialAccount
 import com.example.anbdapi.domain.userSocialAccount.repository.UserSocialAccountRepository
 import com.example.anbdapi.support.enums.Gender
 import com.example.anbdapi.support.enums.Provider
+import com.example.anbdapi.support.utils.jwt.JwtUserPrincipal
 import org.springframework.security.core.Authentication
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -37,14 +37,38 @@ class UserService(
         nickname: String,
         profileImage: String
     ): User {
-        val providerEnum = Provider.valueOf(registrationId.uppercase())
-        val existingSocialAccount = userSocialAccountRepository.findByProviderAndProviderId(providerEnum, providerId)
+
+        val existingSocialAccount = userSocialAccountRepository.findSocialAccountWithUserByProviderAndProviderId(
+            registrationId.uppercase(), providerId
+        )
+
         if (existingSocialAccount != null) {
-            return existingSocialAccount.user
+            val socialAccountId = existingSocialAccount.socialId
+                ?: throw IllegalArgumentException("Social account ID is missing")
+            val socialDeletedAt = existingSocialAccount.socialDeletedAt
+            val userId = existingSocialAccount.userId
+                ?: throw IllegalArgumentException("User ID is missing for social account")
+            val userDeletedAt = existingSocialAccount.userDeletedAt
+
+            if (socialDeletedAt != null || userDeletedAt != null) {
+                userSocialAccountRepository.restoreById(socialAccountId)
+                userRepository.restoreById(userId)
+            }
+
+            return userRepository.findById(userId).orElse(null)
+                ?: throw UserNotFoundException("User not found")
         }
 
-        val existingUser = userRepository.findByEmail(email)
+        val providerEnum = Provider.valueOf(registrationId.uppercase())
+
+        val existingUser = userRepository.findByEmailIncludingDeleted(email)
         if (existingUser != null) {
+
+            if (existingUser.deletedAt != null) {
+                existingUser.deletedAt = null
+                userRepository.save(existingUser)
+            }
+
             val newSocialAccount = UserSocialAccount(
                 user = existingUser,
                 provider = providerEnum,
@@ -142,11 +166,10 @@ class UserService(
     fun getCurrentUserNotNull(authentication: Authentication): User {
         require(authentication.isAuthenticated) { "Authentication Invalid." }
 
-        val principal = authentication.principal as? DefaultOAuth2User
+        val principal = authentication.principal as? JwtUserPrincipal
             ?: throw SecurityException("Invalid authentication principal")
 
-        val userId = principal.attributes["userId"] as? String
-            ?: throw SecurityException("UserId not found in authentication attributes.")
+        val userId = principal.getUserId()
 
         return userRepository.findById(userId.toLong()).orElse(null)
             ?: throw UserNotFoundException("User not found")
