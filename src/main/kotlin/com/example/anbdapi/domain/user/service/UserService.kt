@@ -55,8 +55,7 @@ class UserService(
                 userRepository.restoreById(userId)
             }
 
-            return userRepository.findById(userId).orElse(null)
-                ?: throw UserNotFoundException("User not found")
+            return userRepository.findById(userId).orElseThrow { UserNotFoundException("User not found") }
         }
 
         val providerEnum = Provider.valueOf(registrationId.uppercase())
@@ -112,8 +111,7 @@ class UserService(
     @Transactional
     fun logoutUser(userId : Long): String {
 
-        val user = userRepository.findById(userId).orElse(null)
-            ?: throw UserNotFoundException("User not found")
+        val user = userRepository.findById(userId).orElseThrow { UserNotFoundException("User not found") }
 
         user.refreshToken = null
 
@@ -123,8 +121,7 @@ class UserService(
 
     @Transactional
     fun updateUserProfile(userId: Long, request: ProfileUpdateRequest): User {
-        val user = userRepository.findById(userId).orElse(null)
-            ?: throw UserNotFoundException("User not found")
+        val user = userRepository.findById(userId).orElseThrow { UserNotFoundException("User not found") }
 
         user.gender = request.gender
         user.birthDate = request.birthDate
@@ -138,8 +135,7 @@ class UserService(
 
     @Transactional
     fun updateRefreshToken(userId: Long, refreshToken: String) {
-        val user = userRepository.findById(userId).orElse(null)
-            ?: throw UserNotFoundException("User not found")
+        val user = userRepository.findById(userId).orElseThrow { UserNotFoundException("User not found") }
         user.refreshToken = refreshToken
 
         userRepository.save(user)
@@ -148,8 +144,7 @@ class UserService(
     @Transactional
     fun deleteUser(userId : Long): String {
 
-        val user = userRepository.findById(userId).orElse(null)
-            ?: throw UserNotFoundException("User not found")
+        val user = userRepository.findById(userId).orElseThrow { UserNotFoundException("User not found") }
 
         userRepository.delete(user)
 
@@ -157,8 +152,7 @@ class UserService(
     }
 
     fun getUserInfo(userId: Long): UserInformationResponse {
-        val user = userRepository.findById(userId).orElse(null)
-            ?: throw UserNotFoundException("User not found")
+        val user = userRepository.findById(userId).orElseThrow { UserNotFoundException("User not found") }
 
         return UserInformationResponse.from(user)
     }
@@ -171,19 +165,16 @@ class UserService(
 
         val userId = principal.getUserId()
 
-        return userRepository.findById(userId.toLong()).orElse(null)
-            ?: throw UserNotFoundException("User not found")
+        return userRepository.findById(userId.toLong()).orElseThrow { UserNotFoundException("User not found") }
     }
 
     fun getUserById(userId: Long): User {
-        return userRepository.findById(userId).orElse(null)
-            ?: throw UserNotFoundException("User not found")
+        return userRepository.findById(userId).orElseThrow { UserNotFoundException("User not found") }
     }
 
     @Transactional
     fun updateProfileImageAndNickname(userId: Long, nickname: String?, imageUrl: String?): User {
-        val user = userRepository.findById(userId).orElse(null)
-            ?: throw UserNotFoundException("User not found")
+        val user = userRepository.findById(userId).orElseThrow { UserNotFoundException("User not found") }
 
         nickname?.let {
             user.nickname = it
@@ -197,8 +188,7 @@ class UserService(
     }
 
     fun getUserProfile(userId: Long): UserProfileResponse {
-        val user = userRepository.findById(userId).orElse(null)
-            ?: throw UserNotFoundException("User not found")
+        val user = userRepository.findById(userId).orElseThrow { UserNotFoundException("User not found") }
 
         return UserProfileResponse.from(user)
     }
