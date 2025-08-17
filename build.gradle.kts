@@ -35,18 +35,16 @@ dependencies {
     implementation("org.webjars:stomp-websocket:2.3.4")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
 
-    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
-    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
-
     implementation("io.micrometer", "micrometer-tracing")
     implementation("io.micrometer", "micrometer-tracing-bridge-brave")
 
-    implementation("org.springframework.boot:spring-boot-devtools")
+//    implementation("org.springframework.boot:spring-boot-devtools")
 
     implementation("org.springdoc", "springdoc-openapi-starter-common", springDocVersion)
     implementation("org.springdoc", "springdoc-openapi-starter-webmvc-ui", springDocVersion)
 
     implementation("com.google.cloud:google-cloud-storage:2.30.1")
+    implementation("com.google.cloud:google-cloud-vision:3.57.0")
     implementation("commons-io:commons-io:2.15.1")
 
     implementation("org.apache.httpcomponents:httpclient:4.5.14")

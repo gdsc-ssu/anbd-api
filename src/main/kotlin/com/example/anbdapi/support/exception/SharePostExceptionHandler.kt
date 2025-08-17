@@ -16,7 +16,7 @@ class SharePostExceptionHandler(
     private val traceIdResolver: TraceIdResolver,
 ) {
 
-    private val log = LoggerFactory.getLogger(AuthExceptionHandler::class.java)
+    private val log = LoggerFactory.getLogger(SharePostExceptionHandler::class.java)
 
     @ExceptionHandler(SharePostNotFoundException::class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -35,7 +35,7 @@ class SharePostExceptionHandler(
     }
 
     @ExceptionHandler(SharePostLikeBadRequestException::class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleSharePostBadRequestException(ex: SharePostLikeBadRequestException): AnbdApiResponse<ErrorResponse> {
         log.error("SharePostLikeBadRequest 발생: {}", ex.message, ex)
 
