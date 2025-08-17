@@ -1,5 +1,6 @@
 package com.example.anbdapi.domain.auth.controller
 
+import com.example.anbdapi.domain.auth.dto.request.MobileAppleLoginRequest
 import com.example.anbdapi.domain.auth.dto.request.MobileGoogleLoginRequest
 import com.example.anbdapi.domain.auth.dto.request.RefreshRequest
 import com.example.anbdapi.domain.auth.dto.response.TokenResponse
@@ -59,6 +60,24 @@ class AuthController(
         return AnbdApiResponse.success(
             traceId = traceIdResolver.getTraceId(),
             body = authService.processMobileGoogleLogin(request.accessToken)
+        )
+    }
+
+    @Operation(
+        summary = "모바일 Apple 소셜 로그인",
+        description = "모바일 클라이언트에서 받은 Apple ID 토큰을 검증하고 로그인합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "로그인 성공"),
+            ApiResponse(responseCode = "401", description = "인증 실패")
+        ]
+    )
+    @PostMapping("/mobile/apple")
+    fun mobileAppleLogin(@RequestBody request: MobileAppleLoginRequest): AnbdApiResponse<LoginResponse> {
+        return AnbdApiResponse.success(
+            traceId = traceIdResolver.getTraceId(),
+            body = authService.processMobileAppleLogin(request.idToken)
         )
     }
 }

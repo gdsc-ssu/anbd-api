@@ -36,6 +36,7 @@ class SecurityConfiguration(
                     "/v1/users/logout",
                     "/v1/auth/tokens/refresh",
                     "/v1/auth/mobile/google",
+                    "/v1/auth/mobile/apple",
                     "/stomp/chat").permitAll()
                     .anyRequest().authenticated()
             }.addFilterBefore(
