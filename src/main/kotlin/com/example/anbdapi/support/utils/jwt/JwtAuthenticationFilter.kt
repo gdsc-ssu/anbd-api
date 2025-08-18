@@ -28,6 +28,7 @@ class JwtAuthenticationFilter(
 
     private val excludedUrls = listOf(
         "/v1/auth/mobile/google",
+        "/v1/auth/mobile/apple",
         "/v1/auth/tokens/refresh",
         "/v1/users/logout"
     )

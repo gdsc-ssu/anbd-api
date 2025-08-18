@@ -1,5 +1,6 @@
 package com.example.anbdapi.support.exception
 
+import com.example.anbdapi.domain.auth.exception.AppleAuthException
 import com.example.anbdapi.domain.auth.exception.GoogleAuthException
 import com.example.anbdapi.domain.auth.exception.TokenExpiredException
 import com.example.anbdapi.support.logging.TraceIdResolver
@@ -67,6 +68,19 @@ class AuthExceptionHandler(
             status = HttpStatus.UNAUTHORIZED,
             code = AuthResponseCode.AUTH_03,
             body = ErrorResponse(ex.message ?: "Google 인증에 실패했습니다.")
+        )
+    }
+
+    @ExceptionHandler(AppleAuthException::class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    fun handleAppleAuthException(ex: AppleAuthException): AnbdApiResponse<ErrorResponse> {
+        log.warn("AppleAuthException 발생: {}", ex.message)
+
+        return AnbdApiResponse.of(
+            traceId = traceIdResolver.getTraceId(),
+            status = HttpStatus.UNAUTHORIZED,
+            code = AuthResponseCode.AUTH_04,  // 새로운 코드 추가
+            body = ErrorResponse(ex.message ?: "Apple 인증에 실패했습니다.")
         )
     }
 }
